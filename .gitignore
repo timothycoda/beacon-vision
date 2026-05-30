@@ -1,0 +1,25 @@
+*.iml
+.gradle/
+/local.properties
+/.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Module build outputs
+**/build/
+
+# Keep the vendor SDK pack out of git history (large binaries + docs)
+/HeyCyan_Android_SDK_1.0.2_20250816/
+
+# Kotlin
+.kotlin/
+
+# Local debug APK exports (build with ./gradlew :app:assembleDebug)
+/exports/
+
+# Cursor session logs (keep .cursor/rules/)
+.cursor/debug*.log

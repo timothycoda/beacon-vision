@@ -1,0 +1,74 @@
+---
+description: Beacon bento dark UI styling (preferred for all app screens)
+globs: app/src/main/java/com/beacon/app/ui/**/*.kt
+alwaysApply: false
+---
+
+# Beacon UI (bento dark, preferred styling)
+
+All Compose UI in Beacon follows this design system (TSI-inspired bento dark). Do not introduce ad-hoc colors, tiny touch targets, or dense layouts.
+
+## Principles
+
+- **Accessibility first**: visually impaired users are the primary audience. The dark
+  near-black background with bold lime/yellow/white tiles is deliberately high-contrast.
+- **Bento layout**: bold colored cards/tiles, large radii, one big primary tile per screen.
+- **Calm companion**: simple, reassuring copy; keep guidance text short.
+- **High contrast**: strong foreground/background separation; never gray-on-gray.
+
+## Use the design system
+
+- Theme: `BeaconTheme` in `ui/theme/Theme.kt` (single dark scheme, `BentoDarkColors`)
+- Tokens: `BeaconDimens`, `BeaconShapes`, colors in `Color.kt`, `BeaconTypography` in `Type.kt`
+- Scaffold: `BeaconScreen` (dark, scrollable) + `BeaconTopBar` (wordmark + circular action) + `BeaconHeading`
+- Bento tiles: `BentoCard` (title, optional value/leadingIcon, arrow-circle) — whole tile is one tap target
+- Chips/status pills: `BeaconChip` (selected = white or accent fill)
+- Flow actions: `BigActionButton` (primary), `SecondaryActionButton` (outlined)
+- Status blocks: `BeaconStatusCard`
+- Emergency: a `BentoCard` (or `BigActionButton`) with `containerColor = BeaconDanger` — always red, always reachable
+
+## Colors (Color.kt)
+
+- Background: `BeaconBackground` (#0A0A0A); dark tiles: `BeaconCardDark`
+- Lime tile (primary action): `BeaconLime` / text `BeaconLimeText`
+- Yellow tile: `BeaconYellow` / text `BeaconYellowText`
+- White tile: `BeaconWhiteCard` / text `BeaconWhiteCardText`
+- Emergency: `BeaconDanger` / text `BeaconDangerText`
+- Text on dark: `BeaconOnDark`, muted `BeaconOnDarkMuted`
+- Do not add custom colors outside `Color.kt`.
+
+## Touch targets
+
+- Primary buttons / large tiles: min `BeaconDimens.primaryButtonMinHeight` / `bentoLargeMinHeight`
+- Small bento tiles: min `bentoSmallMinHeight`; wide tiles: `bentoWideMinHeight`
+- Never use controls smaller than 48dp; arrow circles are `arrowCircle` (44dp)
+
+## Typography (bold geometric)
+
+- Page title: `displaySmall`; tile title: `headlineSmall`; big numbers/values: `displaySmall`
+- Body: `bodyLarge` / `bodyMedium`; chips: `titleMedium`
+- Do not shrink essential text below `bodyMedium`
+
+## TalkBack
+
+- Every interactive control needs a clear `contentDescription` (use the component params).
+- Interactive containers (`BentoCard`, `BigActionButton`, `SecondaryActionButton`, top-bar
+  action, device cards) use `clearAndSetSemantics` so the whole tile reads as one node. When
+  doing this on a clickable, you MUST also set `role = Role.Button` and re-add the action with
+  `onClick(action = { ...; true })` (clearing semantics drops the clickable's action), and call
+  `disabled()` when not enabled. Otherwise TalkBack won't activate it on double-tap.
+- Toggles: make the whole row `Modifier.toggleable(value, role = Role.Switch, onValueChange)`
+  and set the inner `Switch(onCheckedChange = null)` so label + state are one announced control.
+- Decorative visuals (Canvas illustrations, background icons) must be hidden from TalkBack:
+  `Modifier.clearAndSetSemantics {}`, and decorative `Icon`/`Image` use `contentDescription = null`.
+- Use `liveRegion = LiveRegionMode.Polite` for connection/battery/error status and for content
+  that changes in place (e.g. onboarding pages, recognised voice text).
+- Page/section titles use `Modifier.semantics { heading() }` (already in `BeaconHeading`/`BeaconTopBar`).
+- No business logic in Composables; use ViewModels + sealed UI state.
+
+## What to avoid
+
+- Light backgrounds or low-contrast gray tiles
+- Tiny icon-only buttons without descriptions
+- Long paragraphs on guidance screens
+- Requesting all permissions at once without education copy
