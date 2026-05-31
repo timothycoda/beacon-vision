@@ -35,6 +35,7 @@ import com.beacon.app.ui.voicecommand.VoiceCommandScreen
 import com.beacon.app.ui.walking.WalkingModeScreen
 import com.beacon.app.ui.onboarding.OnboardingScreen
 import com.beacon.app.ui.phone.PhoneGuidanceScreen
+import com.beacon.app.ui.helper.TrustedHelpersScreen
 import com.beacon.app.ui.welcome.WelcomeScreen
 import com.beacon.domain.glasses.model.ConnectionState
 
@@ -138,8 +139,12 @@ fun BeaconApp(
                 onVoiceSettings = { navController.navigate(BeaconDestinations.VOICE_SETTINGS) },
                 onModelPacks = { navController.navigate(BeaconDestinations.MODEL_PACKS) },
                 onEmergency = { navController.navigate(BeaconDestinations.EMERGENCY) },
+                onTrustedHelpers = { navController.navigate(BeaconDestinations.TRUSTED_HELPERS) },
                 onHistory = { navController.navigate(BeaconDestinations.HISTORY) },
             )
+        }
+        composable(BeaconDestinations.TRUSTED_HELPERS) {
+            TrustedHelpersScreen(onBack = { navController.popBackStack() })
         }
         composable(BeaconDestinations.MODEL_PACKS) {
             ModelPacksScreen(onBack = { navController.popBackStack() })

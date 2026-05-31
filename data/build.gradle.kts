@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.okhttp)
+    implementation(libs.gson)
     implementation(libs.mlkit.image.labeling)
     implementation(libs.mlkit.text.recognition)
     implementation(libs.googleMlkitObjDetection)

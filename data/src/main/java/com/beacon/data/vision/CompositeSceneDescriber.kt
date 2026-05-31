@@ -37,7 +37,7 @@ class CompositeSceneDescriber @Inject constructor(
                 is OperationResult.Success -> {
                     val language = languagePrefs.language.first()
                     val labels = base.value.labels
-                    val gemmaLine = maybeEnhanceWithGemma(labels)
+                    val gemmaLine = maybeEnhanceWithGemma(language, labels)
                     val spoken = pickSpokenSummary(
                         language = language,
                         labels = labels,
@@ -54,7 +54,11 @@ class CompositeSceneDescriber @Inject constructor(
             }
         }
 
-    private suspend fun maybeEnhanceWithGemma(labels: List<SceneLabel>): String? {
+    private suspend fun maybeEnhanceWithGemma(
+        language: GuidanceLanguage,
+        labels: List<SceneLabel>,
+    ): String? {
+        if (language == GuidanceLanguage.Hausa) return null
         val now = System.currentTimeMillis()
         if (now - lastGemmaEnhanceMs < GEMMA_MIN_INTERVAL_MS) return null
         lastGemmaEnhanceMs = now

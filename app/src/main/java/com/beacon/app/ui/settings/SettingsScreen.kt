@@ -28,6 +28,7 @@ fun SettingsScreen(
     onVoiceSettings: () -> Unit,
     onModelPacks: () -> Unit,
     onEmergency: () -> Unit,
+    onTrustedHelpers: () -> Unit,
     onHistory: () -> Unit,
 ) {
     BeaconScreen {
@@ -72,6 +73,14 @@ fun SettingsScreen(
             leadingIcon = Icons.Filled.Emergency,
             minHeight = BeaconDimens.bentoWideMinHeight,
             contentDescription = "Trusted contact and hands-free emergency options.",
+        )
+        BentoCard(
+            title = "Trusted helpers",
+            onClick = onTrustedHelpers,
+            containerColor = BeaconWhiteCard,
+            contentColor = BeaconWhiteCardText,
+            minHeight = BeaconDimens.bentoWideMinHeight,
+            contentDescription = "Manage helpers for WhatsApp and emergencies.",
         )
         BentoCard(
             title = "History",

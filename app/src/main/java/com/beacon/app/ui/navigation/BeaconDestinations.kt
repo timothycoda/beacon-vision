@@ -18,6 +18,7 @@ object BeaconDestinations {
     const val VOICE_COMMAND = "voice_command"
     const val MODEL_PACKS = "model_packs"
     const val PHONE_GUIDANCE = "phone_guidance"
+    const val TRUSTED_HELPERS = "trusted_helpers"
 
     /** Argument name signalling a feature should run automatically on open. */
     const val ARG_AUTO_START = "autostart"

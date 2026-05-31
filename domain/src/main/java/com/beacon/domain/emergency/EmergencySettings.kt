@@ -6,4 +6,7 @@ data class EmergencySettings(
     val autoSendSms: Boolean = true,
     /** When true, hands-free emergency waits a few seconds before sending SMS. */
     val confirmBeforeSend: Boolean = false,
+    val allowWhatsAppEmergencySharing: Boolean = false,
+    val includeLocationInEmergencyAlerts: Boolean = true,
+    val includeLatestImageInEmergencyAlerts: Boolean = true,
 )

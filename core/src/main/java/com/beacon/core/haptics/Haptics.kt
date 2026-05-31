@@ -22,6 +22,14 @@ class Haptics(private val context: Context) {
 
     fun confirm() = vibrate(60)
     fun error() = vibrate(200)
+    fun emergencyPulse() {
+        runCatching {
+            val v = vibrator ?: return
+            if (!v.hasVibrator()) return
+            val pattern = longArrayOf(0, 120, 80, 200)
+            v.vibrate(VibrationEffect.createWaveform(pattern, -1))
+        }
+    }
 
     private fun vibrate(durationMs: Long) {
         // Never let a missing VIBRATE permission or an OEM vibrator quirk crash a

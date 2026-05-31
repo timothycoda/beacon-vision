@@ -3,6 +3,10 @@ package com.beacon.data.di
 import com.beacon.data.device.DevicePreferencesImpl
 import com.beacon.data.guidance.GuidanceLanguageRepositoryImpl
 import com.beacon.data.emergency.EmergencyRepositoryImpl
+import com.beacon.data.helper.TrustedHelperRepositoryImpl
+import com.beacon.data.phone.PhoneModeLatestImageHolder
+import com.beacon.domain.helper.TrustedHelperRepository
+import com.beacon.domain.vision.LatestImageProvider
 import com.beacon.data.glasses.GlassesRepositoryImpl
 import com.beacon.data.history.HistoryRepositoryImpl
 import com.beacon.data.location.AndroidLocationProvider
@@ -59,6 +63,16 @@ abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindEmergencyRepository(impl: EmergencyRepositoryImpl): EmergencyRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindTrustedHelperRepository(
+        impl: TrustedHelperRepositoryImpl,
+    ): TrustedHelperRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindLatestImageProvider(impl: PhoneModeLatestImageHolder): LatestImageProvider
 
     @Binds
     @Singleton

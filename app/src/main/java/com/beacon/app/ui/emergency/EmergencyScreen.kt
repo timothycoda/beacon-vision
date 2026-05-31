@@ -2,12 +2,8 @@ package com.beacon.app.ui.emergency
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Emergency
@@ -26,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
@@ -39,6 +34,7 @@ import com.beacon.app.ui.components.BeaconHeading
 import com.beacon.app.ui.components.BeaconScreen
 import com.beacon.app.ui.components.BeaconTopBar
 import com.beacon.app.ui.components.BentoCard
+import com.beacon.app.ui.components.RowWithSwitch
 import com.beacon.app.ui.theme.BeaconCardDark
 import com.beacon.app.ui.theme.BeaconDanger
 import com.beacon.app.ui.theme.BeaconDangerText
@@ -139,6 +135,59 @@ fun EmergencyScreen(
             checked = state.confirmBeforeSend,
             onCheckedChange = viewModel::setConfirmBeforeSend,
         )
+        RowWithSwitch(
+            label = "Allow WhatsApp emergency sharing",
+            checked = state.allowWhatsAppEmergencySharing,
+            onCheckedChange = viewModel::setAllowWhatsAppEmergencySharing,
+        )
+        RowWithSwitch(
+            label = "Include location in emergency alerts",
+            checked = state.includeLocationInAlerts,
+            onCheckedChange = viewModel::setIncludeLocationInAlerts,
+        )
+        RowWithSwitch(
+            label = "Include latest image in emergency alerts",
+            checked = state.includeLatestImageInAlerts,
+            onCheckedChange = viewModel::setIncludeLatestImageInAlerts,
+        )
+
+        LaunchedEffect(state.allowWhatsAppEmergencySharing) {
+            if (state.allowWhatsAppEmergencySharing) {
+                viewModel.prepareWhatsAppSharePreview()
+            }
+        }
+
+        state.sharePreview?.let { preview ->
+            Text(
+                text = buildString {
+                    append("WhatsApp share preview: ")
+                    append(if (preview.hasImage) "image yes" else "no image")
+                    append(", ")
+                    append(if (preview.hasLocation) "location yes" else "no location")
+                    append(", ")
+                    append("${preview.contactCount} contact(s)")
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+
+        state.countdownSeconds?.let { seconds ->
+            Text(
+                text = "Sending in $seconds…",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
+            )
+            BentoCard(
+                title = "Cancel",
+                onClick = viewModel::cancelCountdown,
+                containerColor = BeaconCardDark,
+                contentColor = BeaconOnDark,
+                minHeight = BeaconDimens.bentoLargeMinHeight,
+                contentDescription = "Cancel emergency countdown",
+            )
+        }
 
         if (smsGranted) {
             Text(
@@ -178,7 +227,7 @@ fun EmergencyScreen(
         }
 
         BentoCard(
-            title = if (state.isBusy) "Working…" else "Get help now",
+            title = if (state.isBusy) "Working…" else "Get help now (SMS)",
             onClick = {
                 if (state.contactPhone.isBlank()) return@BentoCard
                 val needsLocation = !BeaconPermissions.hasEmergencyLocationPermission(context)
@@ -192,8 +241,38 @@ fun EmergencyScreen(
             contentColor = BeaconDangerText,
             leadingIcon = Icons.Filled.Emergency,
             minHeight = BeaconDimens.bentoLargeMinHeight,
-            enabled = !state.isBusy && state.contactPhone.isNotBlank(),
+            enabled = !state.isBusy && state.contactPhone.isNotBlank() && state.countdownSeconds == null,
             contentDescription = "Prepare emergency message and open your messaging app.",
+        )
+
+        BentoCard(
+            title = "Call emergency contact",
+            onClick = viewModel::callEmergencyContact,
+            containerColor = BeaconDanger,
+            contentColor = BeaconDangerText,
+            minHeight = BeaconDimens.bentoWideMinHeight,
+            enabled = state.contactPhone.isNotBlank(),
+            contentDescription = "Call your trusted emergency contact",
+        )
+
+        BentoCard(
+            title = "Send emergency alert to WhatsApp",
+            onClick = viewModel::startWhatsAppEmergencyCountdown,
+            containerColor = BeaconWhiteCard,
+            contentColor = BeaconWhiteCardText,
+            minHeight = BeaconDimens.bentoLargeMinHeight,
+            enabled = state.allowWhatsAppEmergencySharing && !state.isBusy && state.countdownSeconds == null,
+            contentDescription = "Prepare WhatsApp emergency alert with image and location",
+        )
+
+        BentoCard(
+            title = "Send image and location (WhatsApp)",
+            onClick = viewModel::shareEmergencyViaWhatsApp,
+            containerColor = BeaconCardDark,
+            contentColor = BeaconOnDark,
+            minHeight = BeaconDimens.bentoWideMinHeight,
+            enabled = state.allowWhatsAppEmergencySharing && !state.isBusy,
+            contentDescription = "Open WhatsApp to share emergency image and message",
         )
 
         BentoCard(
@@ -207,37 +286,3 @@ fun EmergencyScreen(
     }
 }
 
-@Composable
-private fun RowWithSwitch(
-    label: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    // Whole row is one toggle target so TalkBack announces the label together
-    // with the on/off state and toggles on double-tap.
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 56.dp)
-            .toggleable(
-                value = checked,
-                role = Role.Switch,
-                onValueChange = onCheckedChange,
-            ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier
-                .weight(1f)
-                .padding(end = 16.dp),
-        )
-        Switch(
-            checked = checked,
-            onCheckedChange = null,
-        )
-    }
-}

@@ -21,6 +21,9 @@ class EmergencyPreferences @Inject constructor(
             includeSceneFromGlasses = prefs[KEY_INCLUDE_SCENE] ?: true,
             autoSendSms = prefs[KEY_AUTO_SEND] ?: true,
             confirmBeforeSend = prefs[KEY_CONFIRM_BEFORE_SEND] ?: false,
+            allowWhatsAppEmergencySharing = prefs[KEY_WHATSAPP_EMERGENCY] ?: false,
+            includeLocationInEmergencyAlerts = prefs[KEY_INCLUDE_LOCATION] ?: true,
+            includeLatestImageInEmergencyAlerts = prefs[KEY_INCLUDE_IMAGE] ?: true,
         )
     }
 
@@ -36,9 +39,24 @@ class EmergencyPreferences @Inject constructor(
         store.edit { it[KEY_CONFIRM_BEFORE_SEND] = enabled }
     }
 
+    suspend fun setAllowWhatsAppEmergencySharing(enabled: Boolean) {
+        store.edit { it[KEY_WHATSAPP_EMERGENCY] = enabled }
+    }
+
+    suspend fun setIncludeLocationInAlerts(enabled: Boolean) {
+        store.edit { it[KEY_INCLUDE_LOCATION] = enabled }
+    }
+
+    suspend fun setIncludeLatestImageInAlerts(enabled: Boolean) {
+        store.edit { it[KEY_INCLUDE_IMAGE] = enabled }
+    }
+
     private companion object {
         val KEY_INCLUDE_SCENE = booleanPreferencesKey("include_scene")
         val KEY_AUTO_SEND = booleanPreferencesKey("auto_send_sms")
         val KEY_CONFIRM_BEFORE_SEND = booleanPreferencesKey("confirm_before_send")
+        val KEY_WHATSAPP_EMERGENCY = booleanPreferencesKey("whatsapp_emergency_sharing")
+        val KEY_INCLUDE_LOCATION = booleanPreferencesKey("emergency_include_location")
+        val KEY_INCLUDE_IMAGE = booleanPreferencesKey("emergency_include_image")
     }
 }
