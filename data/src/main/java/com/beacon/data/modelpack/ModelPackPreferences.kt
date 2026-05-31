@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.beacon.domain.modelpack.ModelPackDownloadFailure
 import com.beacon.domain.modelpack.ModelPackId
 import com.beacon.domain.modelpack.ModelPackInstallState
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -44,6 +45,7 @@ class ModelPackPreferences @Inject constructor(
             when (prefs[stringKeyState(id)]) {
                 STATE_INSTALLED -> ModelPackInstallState.Installed
                 STATE_DOWNLOADING -> ModelPackInstallState.Downloading
+                STATE_PAUSED -> ModelPackInstallState.Paused
                 STATE_FAILED -> ModelPackInstallState.Failed
                 else -> ModelPackInstallState.NotInstalled
             }
@@ -54,6 +56,13 @@ class ModelPackPreferences @Inject constructor(
 
     fun errorMessage(id: ModelPackId): Flow<String?> =
         store.data.map { it[stringKeyError(id)] }
+
+    fun failureKind(id: ModelPackId): Flow<ModelPackDownloadFailure?> =
+        store.data.map { prefs ->
+            prefs[stringKeyFailure(id)]?.let { key ->
+                runCatching { ModelPackDownloadFailure.valueOf(key) }.getOrNull()
+            }
+        }
 
     suspend fun setDownloading(id: ModelPackId, bytesAlreadyDownloaded: Long = 0L) {
         store.edit {
@@ -67,17 +76,32 @@ class ModelPackPreferences @Inject constructor(
         store.edit { it[longKeyBytes(id)] = bytesDownloaded }
     }
 
+    suspend fun setPaused(id: ModelPackId, bytesDownloaded: Long) {
+        store.edit {
+            it[stringKeyState(id)] = STATE_PAUSED
+            it.remove(stringKeyError(id))
+            it.remove(stringKeyFailure(id))
+            it[longKeyBytes(id)] = bytesDownloaded.coerceAtLeast(0L)
+        }
+    }
+
     suspend fun setInstalled(id: ModelPackId) {
         store.edit {
             it[stringKeyState(id)] = STATE_INSTALLED
             it.remove(stringKeyError(id))
+            it.remove(stringKeyFailure(id))
         }
     }
 
-    suspend fun setFailed(id: ModelPackId, message: String) {
+    suspend fun setFailed(
+        id: ModelPackId,
+        message: String,
+        failure: ModelPackDownloadFailure = ModelPackDownloadFailure.UNKNOWN,
+    ) {
         store.edit {
             it[stringKeyState(id)] = STATE_FAILED
             it[stringKeyError(id)] = message
+            it[stringKeyFailure(id)] = failure.name
         }
     }
 
@@ -86,6 +110,7 @@ class ModelPackPreferences @Inject constructor(
             it.remove(stringKeyState(id))
             it.remove(longKeyBytes(id))
             it.remove(stringKeyError(id))
+            it.remove(stringKeyFailure(id))
         }
     }
 
@@ -116,10 +141,12 @@ class ModelPackPreferences @Inject constructor(
 
         const val STATE_INSTALLED = "installed"
         const val STATE_DOWNLOADING = "downloading"
+        const val STATE_PAUSED = "paused"
         const val STATE_FAILED = "failed"
 
         fun stringKeyState(id: ModelPackId) = stringPreferencesKey("pack_${id.storageKey}_state")
         fun longKeyBytes(id: ModelPackId) = longPreferencesKey("pack_${id.storageKey}_bytes")
         fun stringKeyError(id: ModelPackId) = stringPreferencesKey("pack_${id.storageKey}_error")
+        fun stringKeyFailure(id: ModelPackId) = stringPreferencesKey("pack_${id.storageKey}_failure")
     }
 }

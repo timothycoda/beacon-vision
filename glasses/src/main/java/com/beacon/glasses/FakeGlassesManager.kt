@@ -117,7 +117,9 @@ class FakeGlassesManager @Inject constructor() : GlassesManager {
 
     override suspend fun capturePhoto(): OperationResult<CapturedImage> {
         if (_connectionState.value !is ConnectionState.Connected) {
-            return OperationResult.Failure("Not connected")
+            return OperationResult.Failure(
+                "Glasses not connected. Pair in Settings, or use phone camera from home.",
+            )
         }
         delay(captureDelayMs)
         val jpeg = runCatching { Base64.getDecoder().decode(SAMPLE_JPEG_BASE64) }

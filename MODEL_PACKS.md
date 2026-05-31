@@ -34,7 +34,9 @@ for the full roadmap including **Gemma 4 Lite** and **phone-only camera mode**.
 | Checksum | `ModelPackVerifier` (SHA-256; placeholder `0…0` until real assets) |
 | Delete | Delete action removes files + prefs |
 | No main-thread I/O | `ModelPackDownloader` on `DispatcherProvider.io` |
-| Pause / resume | Planned (cancel + retry today) |
+| Pause / resume | **Pause** keeps partial file; **Resume** continues; **Cancel** wipes partial |
+| Low storage guard | Before download + mid-job check (`ModelPackStorageGuard`) |
+| Orphan reconcile | On app launch: `Downloading` → `Paused` for resume |
 
 Files are stored under: `files/model_packs/<packId>/`.
 

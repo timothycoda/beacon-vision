@@ -16,6 +16,15 @@ interface ModelPackRepository {
 
     suspend fun cancelDownload(id: ModelPackId)
 
+    /** Stops the active download but keeps partial files so the user can resume later. */
+    suspend fun pauseDownload(id: ModelPackId)
+
+    /**
+     * After a process kill or crash, moves orphan [ModelPackInstallState.Downloading]
+     * rows to [ModelPackInstallState.Paused] so the UI can offer Resume.
+     */
+    suspend fun reconcileInterruptedDownloads()
+
     suspend fun deletePack(id: ModelPackId)
 
     suspend fun setWifiOnlyDownload(enabled: Boolean)

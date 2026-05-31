@@ -29,6 +29,18 @@ class CancelModelPackDownloadUseCase @Inject constructor(
     suspend operator fun invoke(id: ModelPackId) = repository.cancelDownload(id)
 }
 
+class PauseModelPackDownloadUseCase @Inject constructor(
+    private val repository: ModelPackRepository,
+) {
+    suspend operator fun invoke(id: ModelPackId) = repository.pauseDownload(id)
+}
+
+class ReconcileModelPackDownloadsUseCase @Inject constructor(
+    private val repository: ModelPackRepository,
+) {
+    suspend operator fun invoke() = repository.reconcileInterruptedDownloads()
+}
+
 class SetModelPackWifiOnlyUseCase @Inject constructor(
     private val repository: ModelPackRepository,
 ) {

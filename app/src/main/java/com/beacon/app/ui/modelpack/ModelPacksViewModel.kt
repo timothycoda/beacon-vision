@@ -13,6 +13,7 @@ import com.beacon.domain.modelpack.ModelPackInstallState
 import com.beacon.domain.modelpack.ModelPackKind
 import com.beacon.domain.modelpack.ModelPackStatus
 import com.beacon.domain.modelpack.ObserveModelPacksUseCase
+import com.beacon.domain.modelpack.PauseModelPackDownloadUseCase
 import com.beacon.domain.modelpack.SetDefaultNarrationPackUseCase
 import com.beacon.domain.modelpack.SetDefaultVoicePackUseCase
 import com.beacon.domain.modelpack.SetModelPackWifiOnlyUseCase
@@ -38,6 +39,7 @@ class ModelPacksViewModel @Inject constructor(
     private val downloadPack: DownloadModelPackUseCase,
     private val deletePack: DeleteModelPackUseCase,
     private val cancelDownload: CancelModelPackDownloadUseCase,
+    private val pauseDownload: PauseModelPackDownloadUseCase,
     private val setModelPackWifiOnly: SetModelPackWifiOnlyUseCase,
     private val setDefaultNarration: SetDefaultNarrationPackUseCase,
     private val setDefaultVoice: SetDefaultVoicePackUseCase,
@@ -79,6 +81,10 @@ class ModelPacksViewModel @Inject constructor(
         viewModelScope.launch { cancelDownload(id) }
     }
 
+    fun pause(id: ModelPackId) {
+        viewModelScope.launch { pauseDownload(id) }
+    }
+
     fun setWifiOnlyDownload(enabled: Boolean) {
         viewModelScope.launch { setModelPackWifiOnly(enabled) }
     }
@@ -100,7 +106,8 @@ class ModelPacksViewModel @Inject constructor(
     companion object {
         fun primaryActionLabel(pack: ModelPackStatus): String = when (pack.state) {
             ModelPackInstallState.NotInstalled -> "Download"
-            ModelPackInstallState.Downloading -> "Cancel download"
+            ModelPackInstallState.Downloading -> "Pause download"
+            ModelPackInstallState.Paused -> "Resume download"
             ModelPackInstallState.Installed -> when (pack.kind) {
                 ModelPackKind.Narration -> if (pack.isDefaultNarration) "Active intelligence" else "Set as default"
                 ModelPackKind.Voice -> if (pack.isDefaultVoice) "Active voice" else "Use this voice"

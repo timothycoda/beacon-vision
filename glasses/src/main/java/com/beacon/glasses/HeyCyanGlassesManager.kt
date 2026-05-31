@@ -377,7 +377,11 @@ class HeyCyanGlassesManager @Inject constructor(
 
     override suspend fun capturePhoto(): OperationResult<CapturedImage> =
         withContext(dispatchers.io) {
-            if (!isConnected()) return@withContext OperationResult.Failure("Glasses not connected")
+            if (!isConnected()) {
+                return@withContext OperationResult.Failure(
+                    "Glasses not connected. Pair in Settings, or use phone camera from home.",
+                )
+            }
             captureMutex.withLock {
                 ensureImageListener()
                 val bytes = withTimeoutOrNull(CAPTURE_TIMEOUT_MS) {

@@ -21,6 +21,8 @@ enum class ModelPackInstallState {
     NotInstalled,
     /** Download in progress (see [ModelPackStatus.bytesDownloaded]). */
     Downloading,
+    /** Paused by user or after an interrupted session; partial file kept for resume. */
+    Paused,
     /** Files verified and ready to load. */
     Installed,
     /** Download or verification failed. */
@@ -40,6 +42,7 @@ data class ModelPackStatus(
     val state: ModelPackInstallState,
     val bytesDownloaded: Long = 0L,
     val errorMessage: String? = null,
+    val failureKind: ModelPackDownloadFailure? = null,
     /** When true, download only starts on unmetered (Wi‑Fi) networks. */
     val wifiOnly: Boolean = true,
     val isDefaultNarration: Boolean = false,

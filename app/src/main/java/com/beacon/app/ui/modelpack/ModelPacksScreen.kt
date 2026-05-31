@@ -1,8 +1,5 @@
 package com.beacon.app.ui.modelpack
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -32,6 +31,7 @@ import com.beacon.app.ui.theme.BeaconOnDarkMuted
 import com.beacon.app.ui.theme.BeaconWhiteCard
 import com.beacon.app.ui.theme.BeaconWhiteCardText
 import com.beacon.domain.guidance.GuidanceLanguage
+import com.beacon.domain.modelpack.ModelPackDownloadFailure
 import com.beacon.domain.modelpack.ModelPackInstallState
 import com.beacon.domain.modelpack.ModelPackKind
 import com.beacon.domain.modelpack.ModelPackStatus
@@ -61,19 +61,30 @@ fun ModelPacksScreen(
         )
 
         state.packs.forEach { pack ->
-            val isDownloading = pack.state == ModelPackInstallState.Downloading
-            val collapsed = isDownloading || state.downloadingPackId == pack.id
-
-            if (collapsed) {
-                DownloadingPackBanner(
-                    pack = pack,
-                    onCancel = { viewModel.cancel(pack.id) },
-                )
-            } else {
-                PackCard(
+            when (pack.state) {
+                ModelPackInstallState.Downloading,
+                -> if (state.downloadingPackId == pack.id) {
+                    DownloadingPackBanner(
+                        pack = pack,
+                        onPause = { viewModel.pause(pack.id) },
+                        onCancel = { viewModel.cancel(pack.id) },
+                    )
+                } else {
+                    PackCard(
+                        pack = pack,
+                        onPrimaryAction = { handlePrimaryAction(pack, viewModel) },
+                        onDelete = { viewModel.delete(pack.id) },
+                    )
+                }
+                else -> PackCard(
                     pack = pack,
                     onPrimaryAction = { handlePrimaryAction(pack, viewModel) },
                     onDelete = { viewModel.delete(pack.id) },
+                    onCancelPartial = if (pack.state == ModelPackInstallState.Paused) {
+                        { viewModel.cancel(pack.id) }
+                    } else {
+                        null
+                    },
                 )
             }
         }
@@ -90,9 +101,10 @@ fun ModelPacksScreen(
 private fun handlePrimaryAction(pack: ModelPackStatus, viewModel: ModelPacksViewModel) {
     when (pack.state) {
         ModelPackInstallState.NotInstalled,
+        ModelPackInstallState.Paused,
         ModelPackInstallState.Failed,
         -> viewModel.download(pack.id)
-        ModelPackInstallState.Downloading -> viewModel.cancel(pack.id)
+        ModelPackInstallState.Downloading -> viewModel.pause(pack.id)
         ModelPackInstallState.Installed -> when (pack.kind) {
             ModelPackKind.Narration -> if (!pack.isDefaultNarration) viewModel.setDefault(pack)
             ModelPackKind.Voice -> if (!pack.isDefaultVoice) viewModel.setDefault(pack)
@@ -137,7 +149,11 @@ private fun GuidanceLanguageToggle(language: GuidanceLanguage, onSelect: (Guidan
 }
 
 @Composable
-private fun DownloadingPackBanner(pack: ModelPackStatus, onCancel: () -> Unit) {
+private fun DownloadingPackBanner(
+    pack: ModelPackStatus,
+    onPause: () -> Unit,
+    onCancel: () -> Unit,
+) {
     val progress = if (pack.sizeBytes > 0) {
         (pack.bytesDownloaded.toFloat() / pack.sizeBytes.toFloat()).coerceIn(0f, 1f)
     } else {
@@ -145,20 +161,30 @@ private fun DownloadingPackBanner(pack: ModelPackStatus, onCancel: () -> Unit) {
     }
     val percent = (progress * 100).toInt()
 
-    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+    Column(
+        modifier = Modifier
+            .padding(vertical = 8.dp)
+            .semantics { liveRegion = LiveRegionMode.Polite },
+    ) {
         BentoCard(
             title = "Downloading ${pack.displayName}",
-            value = "$percent% · check the notification for progress",
-            onClick = onCancel,
+            value = "$percent% · notification shows progress",
+            onClick = onPause,
             containerColor = BeaconLime,
             contentColor = BeaconLimeText,
-            contentDescription = "Downloading ${pack.displayName}. Double tap to cancel.",
+            contentDescription = "Downloading ${pack.displayName}. Double tap to pause.",
         )
         LinearProgressIndicator(
             progress = { progress },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 4.dp, bottom = 12.dp),
+                .padding(top = 4.dp, bottom = 8.dp),
+        )
+        SecondaryActionButton(
+            label = "Cancel download",
+            onClick = onCancel,
+            modifier = Modifier.fillMaxWidth(),
+            contentDescription = "Cancel download and remove partial files for ${pack.displayName}.",
         )
     }
 }
@@ -168,13 +194,23 @@ private fun PackCard(
     pack: ModelPackStatus,
     onPrimaryAction: () -> Unit,
     onDelete: () -> Unit,
+    onCancelPartial: (() -> Unit)? = null,
 ) {
     val active = pack.isDefaultNarration || pack.isDefaultVoice
     val statusLine = when {
         active && pack.isDefaultNarration -> "Active · default intelligence"
         active && pack.isDefaultVoice -> "Active · default voice"
         pack.state == ModelPackInstallState.Installed -> "Installed · tap to activate"
-        pack.state == ModelPackInstallState.Failed -> pack.errorMessage ?: "Download failed"
+        pack.state == ModelPackInstallState.Paused -> {
+            val percent = if (pack.sizeBytes > 0) {
+                ((pack.bytesDownloaded.toFloat() / pack.sizeBytes) * 100).toInt()
+            } else {
+                0
+            }
+            "Paused at $percent% · tap to resume"
+        }
+        pack.state == ModelPackInstallState.Failed ->
+            pack.errorMessage ?: pack.failureKind?.userMessage() ?: "Download failed"
         else -> pack.capability
     }
 
@@ -187,6 +223,26 @@ private fun PackCard(
             contentColor = if (active) BeaconLimeText else BeaconWhiteCardText,
             contentDescription = "${pack.displayName}. ${ModelPacksViewModel.primaryActionLabel(pack)}.",
         )
+        if (pack.state == ModelPackInstallState.Paused && onCancelPartial != null) {
+            LinearProgressIndicator(
+                progress = {
+                    if (pack.sizeBytes > 0) {
+                        (pack.bytesDownloaded.toFloat() / pack.sizeBytes).coerceIn(0f, 1f)
+                    } else {
+                        0f
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp, bottom = 6.dp),
+            )
+            SecondaryActionButton(
+                label = "Discard partial download",
+                onClick = onCancelPartial,
+                modifier = Modifier.fillMaxWidth(),
+                contentDescription = "Discard partial download for ${pack.displayName}.",
+            )
+        }
         if (pack.state == ModelPackInstallState.Installed) {
             SecondaryActionButton(
                 label = "Remove ${pack.displayName}",

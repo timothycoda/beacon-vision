@@ -13,7 +13,7 @@ audio cues from on-device OCR, scene understanding, and object awareness.
 - Phase 0 - Project + SDK setup: complete
 - Phase 1 - Glasses connection MVP (scan / connect / battery / status): complete
 - Phase 2 - Core guidance (read / ahead / walking / voice): built; hardware QA ongoing
-- Phase 3 - Optional model pack downloads (Gemma 4 Lite, etc.): in progress — see [GRAND_PLAN.md](GRAND_PLAN.md)
+- Phase 3–5 - Model packs, Gemma narration, phone camera mode: shipped — see [GRAND_PLAN.md](GRAND_PLAN.md) and [docs/HARDWARE_QA.md](docs/HARDWARE_QA.md)
 
 ## Tech stack
 

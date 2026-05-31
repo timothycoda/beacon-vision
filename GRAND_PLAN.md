@@ -19,9 +19,9 @@ glasses **or** the phone camera alone.
 | 0 | Project + SDK wrapper | Done |
 | 1 | Glasses connect (scan, pair, battery, status) | Done |
 | 2 | Core guidance (read, ahead, walking, voice, emergency) | Built; harden on hardware |
-| **3** | **Optional model packs + download manager** | **In progress (this sprint)** |
-| 4 | Gemma 4 Lite integration (on-device LLM for richer narration) | Planned |
-| 5 | Phone-only mode (full-screen camera + coloured bounding boxes) | Planned |
+| **3** | **Optional model packs + download manager** | **Done** (pause/resume, storage checks, tests) |
+| 4 | Gemma 4 Lite integration (on-device LLM for richer narration) | **Done** (LiteRT-LM when pack installed + default) |
+| 5 | Phone-only mode (full-screen camera + coloured bounding boxes) | **Done** (home chip + `PhoneGuidanceScreen`) |
 | 6 | Release signing, polish, broader language packs | Planned |
 
 ---
@@ -53,8 +53,9 @@ There is no separate SKU named “Gemma 4 Lite”; Beacon maps that to **E2B**.
 - Runs fully on-device when installed; same privacy stance as [PRIVACY.md](PRIVACY.md).
 - `SceneDescriber` / narration pipeline stays one contract: ML Kit by default,
   Gemma-backed implementation when the pack is installed and loaded.
-- Download requirements: Wi‑Fi-only option, pause/resume, checksum verify,
-  delete to free space (see [MODEL_PACKS.md](MODEL_PACKS.md)).
+- Download requirements: Wi‑Fi-only option, **pause/resume**, checksum verify,
+  low-storage guard, orphan reconcile on launch, delete to free space
+  (see [MODEL_PACKS.md](MODEL_PACKS.md)).
 
 ### Download manager (implemented in `:data`)
 
@@ -65,14 +66,14 @@ There is no separate SKU named “Gemma 4 Lite”; Beacon maps that to **E2B**.
 
 ---
 
-## Phase 5 — Phone-only mode (non-wearable toggle)
+## Phase 5 — Phone-only mode (non-wearable toggle) — shipped
 
 **User story:** User does not have glasses (or turns them off) but still wants
 the same guidance: detection, description, and narration.
 
 ### Toggle
 
-- **Settings → “Use phone camera”** (stored in `DevicePreferences.phoneOnlyMode`).
+- **Home → “Use phone camera”** (stored in `DevicePreferences.phoneOnlyMode`).
 - When **on**:
   - Home and guidance features use the **phone rear camera** full-screen
     (CameraX), not glasses capture.

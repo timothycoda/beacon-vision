@@ -4,8 +4,9 @@
 
 - `FakeGlassesManager` driven tests (connect/disconnect/battery/error states)
 - ViewModel tests (e.g. `PairingViewModel`) driving the fake backend
-- Later: `SafetyGuidanceFormatterTest`, `VoiceCommandParserTest`,
-  `ModelPackRepositoryTest`, `DownloadVerifierTest`, `EmergencyMessageBuilderTest`
+- `ModelPackVerifierTest`, `ModelPackDownloaderTest` (`:data`)
+- `ModelPackDownloadFailureTest` (`:domain`)
+- Later: `ModelPackRepositoryTest` (fakes), `SafetyGuidanceFormatterTest`
 
 Run: `./gradlew testDebugUnitTest`
 
@@ -16,6 +17,8 @@ error paths so the full flow runs on an emulator without glasses. Select it with
 `USE_FAKE_GLASSES=true` in `glasses/build.gradle.kts`.
 
 ## Manual hardware tests
+
+See [docs/HARDWARE_QA.md](docs/HARDWARE_QA.md) for the full checklist.
 
 On a physical phone with the X01 glasses:
 

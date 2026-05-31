@@ -1,6 +1,7 @@
 package com.beacon.data.modelpack
 
 import com.beacon.core.log.BeaconLog
+import com.beacon.domain.modelpack.ModelPackDownloadFailure
 import com.beacon.domain.modelpack.ModelPackId
 import com.beacon.domain.modelpack.ModelPackInstallState
 import com.beacon.domain.modelpack.ModelPackKind
@@ -22,6 +23,7 @@ import javax.inject.Singleton
 class ModelPackRepositoryImpl @Inject constructor(
     private val prefs: ModelPackPreferences,
     private val storage: ModelPackStorage,
+    private val storageGuard: ModelPackStorageGuard,
     private val downloader: ModelPackDownloader,
     private val verifier: ModelPackVerifier,
     private val networkPolicy: NetworkPolicy,
@@ -33,6 +35,14 @@ class ModelPackRepositoryImpl @Inject constructor(
     private val downloadMutex = Mutex()
     private var downloadInProgress = false
 
+    @Volatile
+    private var stopRequested: DownloadStop? = null
+
+    private enum class DownloadStop {
+        Pause,
+        Cancel,
+    }
+
     override fun observeAllPacks(): Flow<List<ModelPackStatus>> {
         val packFlows = ModelPackCatalog.visibleInUi.map { entry ->
             combine(
@@ -40,7 +50,8 @@ class ModelPackRepositoryImpl @Inject constructor(
                     prefs.installState(entry.id),
                     prefs.bytesDownloaded(entry.id),
                     prefs.errorMessage(entry.id),
-                ) { state, bytes, error -> Triple(state, bytes, error) },
+                    prefs.failureKind(entry.id),
+                ) { state, bytes, error, failure -> Quad(state, bytes, error, failure) },
                 combine(
                     prefs.wifiOnlyDownload,
                     prefs.defaultNarrationPack,
@@ -48,8 +59,16 @@ class ModelPackRepositoryImpl @Inject constructor(
                 ) { wifiOnly, defaultNarration, defaultVoice ->
                     Triple(wifiOnly, defaultNarration, defaultVoice)
                 },
-            ) { (state, bytes, error), (wifiOnly, defaultNarration, defaultVoice) ->
-                entry.toStatus(state, bytes, error, wifiOnly, defaultNarration, defaultVoice)
+            ) { quad, (wifiOnly, defaultNarration, defaultVoice) ->
+                entry.toStatus(
+                    quad.a,
+                    quad.b,
+                    quad.c,
+                    quad.d,
+                    wifiOnly,
+                    defaultNarration,
+                    defaultVoice,
+                )
             }
         }
         return combine(packFlows) { statuses -> statuses.toList() }
@@ -68,7 +87,20 @@ class ModelPackRepositoryImpl @Inject constructor(
         if (downloadInProgress) return
 
         if (verifier.isPlaceholderChecksum(entry.sha256Hex, entry.verifySizeOnly)) {
-            prefs.setFailed(id, "This pack is not available to download yet.")
+            prefs.setFailed(
+                id,
+                ModelPackDownloadFailure.UNAVAILABLE.userMessage(),
+                ModelPackDownloadFailure.UNAVAILABLE,
+            )
+            return
+        }
+
+        if (!storageGuard.hasSpaceFor(entry.sizeBytes)) {
+            prefs.setFailed(
+                id,
+                ModelPackDownloadFailure.INSUFFICIENT_STORAGE.userMessage(),
+                ModelPackDownloadFailure.INSUFFICIENT_STORAGE,
+            )
             return
         }
 
@@ -76,7 +108,8 @@ class ModelPackRepositoryImpl @Inject constructor(
         if (wifiOnly && !networkPolicy.isUnmetered()) {
             prefs.setFailed(
                 id,
-                "Connect to Wi‑Fi to download, or turn off “Download on Wi‑Fi only”.",
+                ModelPackDownloadFailure.WIFI_REQUIRED.userMessage(),
+                ModelPackDownloadFailure.WIFI_REQUIRED,
             )
             return
         }
@@ -100,6 +133,7 @@ class ModelPackRepositoryImpl @Inject constructor(
                 runDownload(id, entry)
             }
         } finally {
+            stopRequested = null
             downloadMutex.withLock { downloadInProgress = false }
             downloadProgressBus.clear()
             downloadLauncher.stopForegroundDownload()
@@ -108,6 +142,15 @@ class ModelPackRepositoryImpl @Inject constructor(
 
     private suspend fun runDownload(id: ModelPackId, entry: ModelPackEntry) {
         try {
+            if (!storageGuard.hasSpaceFor(entry.sizeBytes)) {
+                prefs.setFailed(
+                    id,
+                    ModelPackDownloadFailure.INSUFFICIENT_STORAGE.userMessage(),
+                    ModelPackDownloadFailure.INSUFFICIENT_STORAGE,
+                )
+                return
+            }
+
             val dest = storage.packFile(id, entry.fileName)
             var lastProgressBytes = 0L
             var lastProgressAtMs = 0L
@@ -130,24 +173,32 @@ class ModelPackRepositoryImpl @Inject constructor(
 
             if (!verifier.matchesExpected(dest, entry.sha256Hex, entry.sizeBytes, entry.verifySizeOnly)) {
                 dest.delete()
-                error("Download verification failed — file may be corrupt. Try again.")
+                error("Download verification failed — file may be corrupt.")
             }
             prefs.setInstalled(id)
             maybeSetDefaultAfterInstall(id, entry.kind)
             narrationCoordinator.onPackInstalled()
         } catch (e: CancellationException) {
-            prefs.clearPack(id)
-            storage.deletePack(id)
-            narrationCoordinator.onPackRemoved()
+            when (stopRequested) {
+                DownloadStop.Pause -> {
+                    val bytes = storage.partialFile(id, entry.fileName)
+                        .takeIf { it.isFile }
+                        ?.length()
+                        ?: prefs.bytesDownloaded(id).first()
+                    prefs.setPaused(id, bytes)
+                }
+                DownloadStop.Cancel, null -> {
+                    prefs.clearPack(id)
+                    storage.deletePack(id)
+                    narrationCoordinator.onPackRemoved()
+                }
+            }
             throw e
         } catch (e: Exception) {
             BeaconLog.e(TAG, "download failed for $id", e)
-            val hint = when {
-                e.message?.contains("HTTP", ignoreCase = true) == true ->
-                    "${e.message} Check your connection and try again."
-                else -> e.message ?: "Download failed"
-            }
-            prefs.setFailed(id, hint)
+            val failure = ModelPackDownloadErrors.classify(e)
+            val message = ModelPackDownloadErrors.userMessage(failure, e)
+            prefs.setFailed(id, message, failure)
         }
     }
 
@@ -167,7 +218,20 @@ class ModelPackRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun pauseDownload(id: ModelPackId) {
+        val entry = ModelPackCatalog.find(id) ?: return
+        stopRequested = DownloadStop.Pause
+        downloader.cancel()
+        downloadMutex.withLock { downloadInProgress = false }
+        downloadProgressBus.clear()
+        downloadLauncher.stopForegroundDownload()
+        val part = storage.partialFile(id, entry.fileName)
+        val bytes = part.takeIf { it.isFile }?.length() ?: prefs.bytesDownloaded(id).first()
+        prefs.setPaused(id, bytes)
+    }
+
     override suspend fun cancelDownload(id: ModelPackId) {
+        stopRequested = DownloadStop.Cancel
         downloader.cancel()
         downloadMutex.withLock { downloadInProgress = false }
         downloadProgressBus.clear()
@@ -177,8 +241,27 @@ class ModelPackRepositoryImpl @Inject constructor(
         narrationCoordinator.onPackRemoved()
     }
 
+    override suspend fun reconcileInterruptedDownloads() {
+        downloadMutex.withLock { downloadInProgress = false }
+        downloadProgressBus.clear()
+        downloadLauncher.stopForegroundDownload()
+        downloader.cancel()
+
+        ModelPackCatalog.visibleInUi.forEach { entry ->
+            if (prefs.installState(entry.id).first() != ModelPackInstallState.Downloading) return@forEach
+            val part = storage.partialFile(entry.id, entry.fileName)
+            val bytes = part.takeIf { it.isFile }?.length() ?: 0L
+            prefs.setPaused(entry.id, bytes)
+            BeaconLog.i(TAG, "Reconciled interrupted download for ${entry.id} at $bytes bytes")
+        }
+    }
+
     override suspend fun deletePack(id: ModelPackId) {
-        cancelDownload(id)
+        stopRequested = DownloadStop.Cancel
+        downloader.cancel()
+        downloadMutex.withLock { downloadInProgress = false }
+        downloadProgressBus.clear()
+        downloadLauncher.stopForegroundDownload()
         if (prefs.defaultNarrationPack.first() == id) prefs.setDefaultNarrationPack(null)
         if (prefs.defaultVoicePack.first() == id) prefs.setDefaultVoicePack(null)
         prefs.clearPack(id)
@@ -213,6 +296,7 @@ class ModelPackRepositoryImpl @Inject constructor(
         state: ModelPackInstallState,
         bytesDownloaded: Long,
         errorMessage: String?,
+        failureKind: ModelPackDownloadFailure?,
         wifiOnly: Boolean,
         defaultNarration: ModelPackId?,
         defaultVoice: ModelPackId?,
@@ -222,6 +306,12 @@ class ModelPackRepositoryImpl @Inject constructor(
                 storage.isInstalled(id, fileName) -> ModelPackInstallState.Installed
             else -> state
         }
+        val pausedBytes = if (resolvedState == ModelPackInstallState.Paused) {
+            val part = storage.partialFile(id, fileName)
+            maxOf(bytesDownloaded, part.takeIf { it.isFile }?.length() ?: 0L)
+        } else {
+            bytesDownloaded
+        }
         return ModelPackStatus(
             id = id,
             displayName = displayName,
@@ -230,13 +320,16 @@ class ModelPackRepositoryImpl @Inject constructor(
             kind = kind,
             sizeBytes = sizeBytes,
             state = resolvedState,
-            bytesDownloaded = bytesDownloaded,
+            bytesDownloaded = pausedBytes,
             errorMessage = errorMessage,
+            failureKind = failureKind,
             wifiOnly = wifiOnly,
             isDefaultNarration = defaultNarration == id && kind == ModelPackKind.Narration,
             isDefaultVoice = defaultVoice == id && kind == ModelPackKind.Voice,
         )
     }
+
+    private data class Quad<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
 
     private companion object {
         const val TAG = "ModelPackRepository"
