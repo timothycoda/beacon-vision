@@ -1,6 +1,7 @@
 package com.beacon.data.modelpack
 
 import com.beacon.core.log.BeaconLog
+import com.beacon.data.speech.HausaVoicePackInstaller
 import com.beacon.domain.modelpack.ModelPackDownloadFailure
 import com.beacon.domain.modelpack.ModelPackId
 import com.beacon.domain.modelpack.ModelPackInstallState
@@ -30,6 +31,7 @@ class ModelPackRepositoryImpl @Inject constructor(
     private val downloadLauncher: ModelPackDownloadLauncher,
     private val narrationCoordinator: ModelPackNarrationCoordinator,
     private val downloadProgressBus: ModelPackDownloadProgressBus,
+    private val hausaVoicePackInstaller: HausaVoicePackInstaller,
 ) : ModelPackRepository {
 
     private val downloadMutex = Mutex()
@@ -176,6 +178,9 @@ class ModelPackRepositoryImpl @Inject constructor(
                 error("Download verification failed — file may be corrupt.")
             }
             prefs.setInstalled(id)
+            if (id == ModelPackId.HAUSA_VOICE) {
+                hausaVoicePackInstaller.ensurePackLayout()
+            }
             maybeSetDefaultAfterInstall(id, entry.kind)
             narrationCoordinator.onPackInstalled()
         } catch (e: CancellationException) {

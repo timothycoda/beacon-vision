@@ -1,6 +1,7 @@
 package com.beacon.app
 
 import android.app.Application
+import com.beacon.core.debug.DebugTrace
 import com.beacon.core.concurrency.DispatcherProvider
 import com.beacon.data.safety.GlassesHealthMonitor
 import com.beacon.domain.modelpack.ReconcileModelPackDownloadsUseCase
@@ -28,6 +29,7 @@ class BeaconApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        DebugTrace.init(this)
         // The vendor BLE stack must be initialised once, before any glasses
         // operation. The initializer only sets up singletons and registers a
         // receiver; no blocking I/O on the main thread.

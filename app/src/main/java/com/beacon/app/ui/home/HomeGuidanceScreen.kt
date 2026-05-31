@@ -1,8 +1,10 @@
 package com.beacon.app.ui.home
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.Emergency
@@ -157,12 +159,7 @@ private fun ConnectionChips(state: HomeUiState) {
         is ConnectionState.Connected -> if (c.ready) "Connected" else "Connecting…"
         is ConnectionState.Failed -> "Connection failed"
     }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .semantics { liveRegion = LiveRegionMode.Polite },
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
+    StatusChipRow {
         BeaconChip(
             label = connectionText,
             selected = connected,
@@ -191,22 +188,33 @@ private fun PhoneModeChip(phoneMode: Boolean, onOpenPhone: () -> Unit) {
 
 @Composable
 private fun ActiveModelChips(state: HomeUiState) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .semantics { liveRegion = LiveRegionMode.Polite },
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
+    StatusChipRow {
         BeaconChip(
             label = "Using: ${state.activeIntelligenceName}",
             selected = state.activeIntelligenceName != "Built-in vision",
             accent = if (state.activeIntelligenceName != "Built-in vision") BeaconLime else null,
         )
-        state.activeVoiceName?.let { voice ->
-            BeaconChip(label = "Voice: $voice", selected = true, accent = BeaconLime)
-        }
         if (state.guidanceLanguage == GuidanceLanguage.Hausa) {
-            BeaconChip(label = "Hausa guidance", selected = true)
+            val hausaLabel = state.activeVoiceName?.let { "Hausa · $it" } ?: "Hausa guidance"
+            BeaconChip(label = hausaLabel, selected = true, accent = BeaconLime)
+        } else {
+            state.activeVoiceName?.let { voice ->
+                BeaconChip(label = "Voice: $voice", selected = true, accent = BeaconLime)
+            }
         }
+    }
+}
+
+@Composable
+private fun StatusChipRow(content: @Composable () -> Unit) {
+    val scroll = rememberScrollState()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(scroll)
+            .semantics { liveRegion = LiveRegionMode.Polite },
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        content()
     }
 }

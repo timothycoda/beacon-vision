@@ -44,7 +44,7 @@ class ModelPacksViewModel @Inject constructor(
     private val setDefaultNarration: SetDefaultNarrationPackUseCase,
     private val setDefaultVoice: SetDefaultVoicePackUseCase,
     observeGuidanceLanguage: ObserveGuidanceLanguageUseCase,
-    private val setGuidanceLanguage: SetGuidanceLanguageUseCase,
+    private val setGuidanceLanguageUseCase: SetGuidanceLanguageUseCase,
 ) : ViewModel() {
 
     private val wifiOnly = MutableStateFlow(true)
@@ -100,7 +100,10 @@ class ModelPacksViewModel @Inject constructor(
     }
 
     fun setGuidanceLanguage(language: GuidanceLanguage) {
-        viewModelScope.launch { setGuidanceLanguage(language) }
+        if (uiState.value.guidanceLanguage == language) return
+        viewModelScope.launch {
+            setGuidanceLanguageUseCase(language)
+        }
     }
 
     companion object {

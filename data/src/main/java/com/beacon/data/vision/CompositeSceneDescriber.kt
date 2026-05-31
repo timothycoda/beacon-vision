@@ -7,7 +7,6 @@ import com.beacon.domain.vision.CapturedImage
 import com.beacon.domain.vision.SceneDescriber
 import com.beacon.domain.vision.SceneDescription
 import com.beacon.data.guidance.GuidanceLanguagePreferences
-import com.beacon.data.vision.HausaLabelTranslator
 import com.beacon.domain.guidance.GuidanceLanguage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -32,17 +31,21 @@ class CompositeSceneDescriber @Inject constructor(
                 is OperationResult.Failure -> base
                 is OperationResult.Success -> {
                     val language = languagePrefs.language.first()
-                    val labels = base.value.labels
-                    val labelsForGemma = if (language == GuidanceLanguage.Hausa) {
-                        labels.map { it.copy(text = HausaLabelTranslator.translate(it.text)) }
-                    } else {
-                        labels
+                    // Hausa: ML Kit already returns Hausa labels + spoken text. Gemma packs
+                    // often reply in English, which broke phone/glasses guidance in Hausa mode.
+                    if (language == GuidanceLanguage.Hausa) {
+                        return@withContext base
                     }
-                    val gemmaLine = narrationEnhancer.enhance(labelsForGemma)
+                    val labels = base.value.labels
+                    val gemmaLine = narrationEnhancer.enhance(labels)
                     if (!gemmaLine.isNullOrBlank()) {
                         OperationResult.Success(
                             SceneDescription(
-                                spokenSummary = SceneSafety.spokenSummary(labels, gemmaLine),
+                                spokenSummary = SceneSafety.spokenSummary(
+                                    labels,
+                                    gemmaLine,
+                                    GuidanceLanguage.English,
+                                ),
                                 labels = labels,
                             ),
                         )

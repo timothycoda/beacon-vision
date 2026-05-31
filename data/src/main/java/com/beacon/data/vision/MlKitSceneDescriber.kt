@@ -64,7 +64,7 @@ class MlKitSceneDescriber @Inject constructor(
             val base = summarize(displayLabels, language)
             OperationResult.Success(
                 SceneDescription(
-                    spokenSummary = SceneSafety.spokenSummary(displayLabels, base),
+                    spokenSummary = SceneSafety.spokenSummary(displayLabels, base, language),
                     labels = displayLabels,
                 ),
             )

@@ -129,14 +129,18 @@ private fun GuidanceLanguageToggle(language: GuidanceLanguage, onSelect: (Guidan
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                text = "Hausa uses translated labels and Hausa speech when the voice pack is installed.",
+                text = "Hausa uses translated labels and on-device MMS speech when the voice pack is installed.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = BeaconOnDarkMuted,
             )
         }
         Switch(
             checked = language == GuidanceLanguage.Hausa,
-            onCheckedChange = { onSelect(if (it) GuidanceLanguage.Hausa else GuidanceLanguage.English) },
+            onCheckedChange = { wantHausa ->
+                val target =
+                    if (wantHausa) GuidanceLanguage.Hausa else GuidanceLanguage.English
+                if (target != language) onSelect(target)
+            },
             modifier = Modifier.semantics {
                 contentDescription = if (language == GuidanceLanguage.Hausa) {
                     "Hausa guidance on"

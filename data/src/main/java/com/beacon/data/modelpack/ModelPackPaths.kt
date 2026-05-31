@@ -24,8 +24,17 @@ class ModelPackPaths @Inject constructor(
     }
 
     fun isHausaVoiceInstalled(): Boolean {
-        val entry = ModelPackCatalog.find(ModelPackId.HAUSA_VOICE) ?: return false
-        return storage.isInstalled(ModelPackId.HAUSA_VOICE, entry.fileName)
+        val dir = storage.packDir(ModelPackId.HAUSA_VOICE)
+        val model = java.io.File(dir, HAUSA_MODEL_FILE)
+        val tokens = java.io.File(dir, HAUSA_TOKENS_FILE)
+        return model.isFile && model.length() > 0L && tokens.isFile && tokens.length() > 0L
+    }
+
+    fun hausaVoiceModelDir(): java.io.File = storage.packDir(ModelPackId.HAUSA_VOICE)
+
+    private companion object {
+        const val HAUSA_MODEL_FILE = "model.onnx"
+        const val HAUSA_TOKENS_FILE = "tokens.txt"
     }
 
     fun modelFile(id: ModelPackId): File? {
