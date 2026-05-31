@@ -11,7 +11,9 @@ audio cues from on-device OCR, scene understanding, and object awareness.
 ## Status
 
 - Phase 0 - Project + SDK setup: complete
-- Phase 1 - Glasses connection MVP (scan / connect / battery / status): in progress
+- Phase 1 - Glasses connection MVP (scan / connect / battery / status): complete
+- Phase 2 - Core guidance (read / ahead / walking / voice): built; hardware QA ongoing
+- Phase 3 - Optional model pack downloads (Gemma 4 Lite, etc.): in progress — see [GRAND_PLAN.md](GRAND_PLAN.md)
 
 ## Tech stack
 
@@ -97,5 +99,6 @@ borders, and shared components (`BeaconScreen`, `BigActionButton`,
 - [SDK_NOTES.md](SDK_NOTES.md) - verified HeyCyan/X01 SDK API surface
 - [SAFETY.md](SAFETY.md) - safety promises and limitations
 - [PRIVACY.md](PRIVACY.md) - offline-first privacy stance
-- [MODEL_PACKS.md](MODEL_PACKS.md) - offline AI pack plan (later phases)
+- [GRAND_PLAN.md](GRAND_PLAN.md) - master roadmap (Gemma 4 Lite, phone-only mode)
+- [MODEL_PACKS.md](MODEL_PACKS.md) - offline AI pack catalogue + download manager
 - [TESTING.md](TESTING.md) - test strategy

@@ -8,7 +8,10 @@ import com.beacon.domain.vision.CapturedImage
 import com.beacon.domain.safety.SceneSafety
 import com.beacon.domain.vision.SceneDescriber
 import com.beacon.domain.vision.SceneDescription
+import com.beacon.data.guidance.GuidanceLanguagePreferences
+import com.beacon.domain.guidance.GuidanceLanguage
 import com.beacon.domain.vision.SceneLabel
+import kotlinx.coroutines.flow.first
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
@@ -26,6 +29,7 @@ import kotlin.coroutines.resume
 @Singleton
 class MlKitSceneDescriber @Inject constructor(
     private val dispatchers: DispatcherProvider,
+    private val languagePrefs: GuidanceLanguagePreferences,
 ) : SceneDescriber {
 
     private val labeler by lazy {
@@ -49,11 +53,19 @@ class MlKitSceneDescriber @Inject constructor(
                     return@withContext OperationResult.Failure("Could not analyse the scene")
                 }
 
-            val base = summarize(labels)
+            val language = languagePrefs.language.first()
+            val displayLabels = if (language == GuidanceLanguage.Hausa) {
+                labels.map { label ->
+                    label.copy(text = HausaLabelTranslator.translate(label.text))
+                }
+            } else {
+                labels
+            }
+            val base = summarize(displayLabels, language)
             OperationResult.Success(
                 SceneDescription(
-                    spokenSummary = SceneSafety.spokenSummary(labels, base),
-                    labels = labels,
+                    spokenSummary = SceneSafety.spokenSummary(displayLabels, base),
+                    labels = displayLabels,
                 ),
             )
         }
@@ -74,17 +86,28 @@ class MlKitSceneDescriber @Inject constructor(
                 }
         }
 
-    private fun summarize(labels: List<SceneLabel>): String {
+    private fun summarize(labels: List<SceneLabel>, language: GuidanceLanguage): String {
         if (labels.isEmpty()) {
-            return "I am not sure what is ahead."
+            return when (language) {
+                GuidanceLanguage.Hausa -> "Ban tabbata abin da ke gaba ba."
+                GuidanceLanguage.English -> "I am not sure what is ahead."
+            }
         }
         val names = labels.map { it.text.lowercase() }
         val list = when (names.size) {
             1 -> names[0]
-            2 -> "${names[0]} and ${names[1]}"
-            else -> names.dropLast(1).joinToString(", ") + ", and " + names.last()
+            2 -> if (language == GuidanceLanguage.Hausa) "${names[0]} da ${names[1]}"
+            else "${names[0]} and ${names[1]}"
+            else -> if (language == GuidanceLanguage.Hausa) {
+                names.dropLast(1).joinToString(", ") + ", da " + names.last()
+            } else {
+                names.dropLast(1).joinToString(", ") + ", and " + names.last()
+            }
         }
-        return "Ahead of you I can see $list."
+        return when (language) {
+            GuidanceLanguage.Hausa -> "A gaban ka na iya ganin $list."
+            GuidanceLanguage.English -> "Ahead of you I can see $list."
+        }
     }
 
     private companion object {

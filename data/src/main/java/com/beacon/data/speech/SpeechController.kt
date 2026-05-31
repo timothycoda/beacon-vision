@@ -8,7 +8,12 @@ import com.beacon.core.concurrency.DispatcherProvider
 import com.beacon.core.log.BeaconLog
 import com.beacon.domain.speech.Speaker
 import com.beacon.domain.speech.SpeechSettings
+import com.beacon.data.guidance.GuidanceLanguagePreferences
+import com.beacon.data.modelpack.ModelPackPaths
+import com.beacon.domain.guidance.GuidanceLanguage
 import com.beacon.domain.speech.SpeechSettingsRepository
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -30,8 +35,13 @@ import javax.inject.Singleton
 class SpeechController @Inject constructor(
     @ApplicationContext private val context: Context,
     private val settingsRepository: SpeechSettingsRepository,
+    private val languagePrefs: GuidanceLanguagePreferences,
+    private val modelPackPaths: ModelPackPaths,
     dispatchers: DispatcherProvider,
 ) : Speaker {
+
+    @Volatile
+    private var guidanceLanguage: GuidanceLanguage = GuidanceLanguage.English
 
     private val scope = CoroutineScope(SupervisorJob() + dispatchers.main)
     private val _isSpeaking = MutableStateFlow(false)
@@ -57,12 +67,16 @@ class SpeechController @Inject constructor(
 
     init {
         scope.launch {
-            settingsRepository.settings
-                .distinctUntilChanged()
-                .collect { settings ->
-                    currentSettings = settings
-                    recreateEngine(settings)
-                }
+            combine(
+                settingsRepository.settings.distinctUntilChanged(),
+                languagePrefs.language,
+            ) { settings, language ->
+                settings to language
+            }.collect { (settings, language) ->
+                currentSettings = settings
+                guidanceLanguage = language
+                recreateEngine(settings)
+            }
         }
     }
 
@@ -106,7 +120,15 @@ class SpeechController @Inject constructor(
     }
 
     private fun applyVoiceAndRate(engine: TextToSpeech, settings: SpeechSettings) {
-        runCatching { engine.language = Locale.getDefault() }
+        val locale = when {
+            guidanceLanguage == GuidanceLanguage.Hausa && modelPackPaths.isHausaVoiceInstalled() ->
+                Locale.forLanguageTag("ha-NG")
+            else -> Locale.getDefault()
+        }
+        val langResult = runCatching { engine.language = locale }
+        if (langResult.isFailure || engine.language?.language != locale.language) {
+            runCatching { engine.language = Locale.getDefault() }
+        }
         val voiceName = settings.voiceName
         if (!voiceName.isNullOrBlank()) {
             val voice = engine.voices?.firstOrNull { it.name == voiceName }

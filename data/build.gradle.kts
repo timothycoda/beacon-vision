@@ -30,8 +30,10 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.okhttp)
     implementation(libs.mlkit.image.labeling)
     implementation(libs.mlkit.text.recognition)
+    implementation(libs.googleMlkitObjDetection)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

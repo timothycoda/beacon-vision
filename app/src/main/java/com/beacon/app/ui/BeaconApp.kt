@@ -26,6 +26,7 @@ import com.beacon.app.ui.navigation.BeaconDestinations
 import com.beacon.app.ui.pairing.GlassesPairingScreen
 import com.beacon.app.ui.permissions.PermissionEducationScreen
 import com.beacon.app.ui.read.ReadThisScreen
+import com.beacon.app.ui.modelpack.ModelPacksScreen
 import com.beacon.app.ui.settings.SettingsScreen
 import com.beacon.app.ui.status.DeviceStatusScreen
 import com.beacon.app.ui.voice.VoiceSettingsScreen
@@ -33,6 +34,7 @@ import com.beacon.app.ui.voicecommand.AssistantViewModel
 import com.beacon.app.ui.voicecommand.VoiceCommandScreen
 import com.beacon.app.ui.walking.WalkingModeScreen
 import com.beacon.app.ui.onboarding.OnboardingScreen
+import com.beacon.app.ui.phone.PhoneGuidanceScreen
 import com.beacon.app.ui.welcome.WelcomeScreen
 import com.beacon.domain.glasses.model.ConnectionState
 
@@ -119,6 +121,14 @@ fun BeaconApp(
                 onWalkingMode = { navController.navigate(BeaconDestinations.WALKING_MODE) },
                 onEmergency = { navController.navigate(BeaconDestinations.EMERGENCY) },
                 onVoiceCommand = { navController.navigate(BeaconDestinations.VOICE_COMMAND) },
+                onPhoneGuidance = { navController.navigate(BeaconDestinations.PHONE_GUIDANCE) },
+            )
+        }
+        composable(BeaconDestinations.PHONE_GUIDANCE) {
+            PhoneGuidanceScreen(
+                onBackToHome = {
+                    navController.popBackStack(BeaconDestinations.HOME, false)
+                },
             )
         }
         composable(BeaconDestinations.SETTINGS) {
@@ -126,9 +136,13 @@ fun BeaconApp(
                 onBack = { navController.popBackStack() },
                 onGlassesStatus = { navController.navigate(BeaconDestinations.DEVICE_STATUS) },
                 onVoiceSettings = { navController.navigate(BeaconDestinations.VOICE_SETTINGS) },
+                onModelPacks = { navController.navigate(BeaconDestinations.MODEL_PACKS) },
                 onEmergency = { navController.navigate(BeaconDestinations.EMERGENCY) },
                 onHistory = { navController.navigate(BeaconDestinations.HISTORY) },
             )
+        }
+        composable(BeaconDestinations.MODEL_PACKS) {
+            ModelPacksScreen(onBack = { navController.popBackStack() })
         }
         composable(BeaconDestinations.HISTORY) {
             HistoryScreen(onBack = { navController.popBackStack() })

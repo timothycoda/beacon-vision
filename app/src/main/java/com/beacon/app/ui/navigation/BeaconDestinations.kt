@@ -16,6 +16,8 @@ object BeaconDestinations {
     const val WALKING_MODE = "walking_mode"
     const val EMERGENCY = "emergency"
     const val VOICE_COMMAND = "voice_command"
+    const val MODEL_PACKS = "model_packs"
+    const val PHONE_GUIDANCE = "phone_guidance"
 
     /** Argument name signalling a feature should run automatically on open. */
     const val ARG_AUTO_START = "autostart"

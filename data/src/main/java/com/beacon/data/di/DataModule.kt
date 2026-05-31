@@ -1,20 +1,28 @@
 package com.beacon.data.di
 
+import com.beacon.data.device.DevicePreferencesImpl
+import com.beacon.data.guidance.GuidanceLanguageRepositoryImpl
 import com.beacon.data.emergency.EmergencyRepositoryImpl
 import com.beacon.data.glasses.GlassesRepositoryImpl
 import com.beacon.data.history.HistoryRepositoryImpl
 import com.beacon.data.location.AndroidLocationProvider
+import com.beacon.data.modelpack.ModelPackRepositoryImpl
 import com.beacon.data.speech.SpeechController
+import com.beacon.data.speech.SpeechPreferences
 import com.beacon.data.text.MlKitTextRecognizer
-import com.beacon.data.vision.MlKitSceneDescriber
+import com.beacon.data.vision.CompositeSceneDescriber
+import com.beacon.data.vision.MlKitObjectDetector
+import com.beacon.domain.vision.ObjectDetector
 import com.beacon.data.voice.AndroidSpeechToText
+import com.beacon.domain.device.DevicePreferences
+import com.beacon.domain.guidance.GuidanceLanguageRepository
 import com.beacon.domain.emergency.EmergencyRepository
 import com.beacon.domain.glasses.GlassesRepository
 import com.beacon.domain.history.HistoryRepository
 import com.beacon.domain.location.LocationProvider
+import com.beacon.domain.modelpack.ModelPackRepository
 import com.beacon.domain.speech.Speaker
 import com.beacon.domain.speech.SpeechSettingsRepository
-import com.beacon.data.speech.SpeechPreferences
 import com.beacon.domain.text.TextRecognizer
 import com.beacon.domain.vision.SceneDescriber
 import com.beacon.domain.voice.SpeechToText
@@ -38,7 +46,7 @@ abstract class DataModule {
 
     @Binds
     @Singleton
-    abstract fun bindSceneDescriber(impl: MlKitSceneDescriber): SceneDescriber
+    abstract fun bindSceneDescriber(impl: CompositeSceneDescriber): SceneDescriber
 
     @Binds
     @Singleton
@@ -63,4 +71,22 @@ abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindHistoryRepository(impl: HistoryRepositoryImpl): HistoryRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindModelPackRepository(impl: ModelPackRepositoryImpl): ModelPackRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDevicePreferences(impl: DevicePreferencesImpl): DevicePreferences
+
+    @Binds
+    @Singleton
+    abstract fun bindGuidanceLanguageRepository(
+        impl: GuidanceLanguageRepositoryImpl,
+    ): GuidanceLanguageRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindObjectDetector(impl: MlKitObjectDetector): ObjectDetector
 }

@@ -37,6 +37,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <!-- Hands-free assistant captures a command from the mic in the background. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 
@@ -51,6 +52,10 @@
 
     <!-- Hands-free emergency: send SMS to trusted contact without opening Messages. -->
     <uses-permission android:name="android.permission.SEND_SMS" />
+
+    <!-- Phone-only guidance: rear camera preview and detection. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
@@ -108,6 +113,11 @@
             android:name=".assistant.BeaconAssistantService"
             android:exported="false"
             android:foregroundServiceType="connectedDevice|microphone" />
+
+        <service
+            android:name=".modelpack.ModelPackDownloadService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
     </application>
 
 </manifest>

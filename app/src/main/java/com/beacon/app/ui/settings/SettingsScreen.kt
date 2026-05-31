@@ -1,6 +1,7 @@
 package com.beacon.app.ui.settings
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Emergency
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Mic
@@ -25,6 +26,7 @@ fun SettingsScreen(
     onBack: () -> Unit,
     onGlassesStatus: () -> Unit,
     onVoiceSettings: () -> Unit,
+    onModelPacks: () -> Unit,
     onEmergency: () -> Unit,
     onHistory: () -> Unit,
 ) {
@@ -52,6 +54,15 @@ fun SettingsScreen(
             leadingIcon = Icons.Filled.Mic,
             minHeight = BeaconDimens.bentoWideMinHeight,
             contentDescription = "Text-to-speech voice and speed.",
+        )
+        BentoCard(
+            title = "Offline AI packs",
+            onClick = onModelPacks,
+            containerColor = BeaconLime,
+            contentColor = BeaconLimeText,
+            leadingIcon = Icons.Filled.CloudDownload,
+            minHeight = BeaconDimens.bentoWideMinHeight,
+            contentDescription = "Download Gemma and other optional on-device packs.",
         )
         BentoCard(
             title = "Emergency",

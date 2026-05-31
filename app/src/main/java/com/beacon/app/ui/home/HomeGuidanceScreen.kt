@@ -39,6 +39,7 @@ import com.beacon.app.ui.theme.BeaconWhiteCardText
 import com.beacon.app.ui.theme.BeaconYellow
 import com.beacon.app.ui.theme.BeaconYellowText
 import com.beacon.domain.glasses.model.ConnectionState
+import com.beacon.domain.guidance.GuidanceLanguage
 import kotlinx.coroutines.launch
 
 @Composable
@@ -49,6 +50,7 @@ fun HomeGuidanceScreen(
     onWalkingMode: () -> Unit,
     onEmergency: () -> Unit,
     onVoiceCommand: () -> Unit,
+    onPhoneGuidance: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -68,6 +70,11 @@ fun HomeGuidanceScreen(
         )
 
         ConnectionChips(state)
+        ActiveModelChips(state)
+        PhoneModeChip(
+            phoneMode = state.phoneOnlyMode,
+            onOpenPhone = { viewModel.enterPhoneMode(onPhoneGuidance) },
+        )
 
         BentoCard(
             title = "Speak a command",
@@ -163,6 +170,43 @@ private fun ConnectionChips(state: HomeUiState) {
         )
         state.battery?.let {
             BeaconChip(label = "Battery ${it.levelPercent}%", selected = false)
+        }
+    }
+}
+
+@Composable
+private fun PhoneModeChip(phoneMode: Boolean, onOpenPhone: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        BeaconChip(
+            label = if (phoneMode) "Phone mode on" else "Use phone camera",
+            selected = phoneMode,
+            accent = if (phoneMode) BeaconLime else null,
+            onClick = onOpenPhone,
+        )
+    }
+}
+
+@Composable
+private fun ActiveModelChips(state: HomeUiState) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { liveRegion = LiveRegionMode.Polite },
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        BeaconChip(
+            label = "Using: ${state.activeIntelligenceName}",
+            selected = state.activeIntelligenceName != "Built-in vision",
+            accent = if (state.activeIntelligenceName != "Built-in vision") BeaconLime else null,
+        )
+        state.activeVoiceName?.let { voice ->
+            BeaconChip(label = "Voice: $voice", selected = true, accent = BeaconLime)
+        }
+        if (state.guidanceLanguage == GuidanceLanguage.Hausa) {
+            BeaconChip(label = "Hausa guidance", selected = true)
         }
     }
 }
