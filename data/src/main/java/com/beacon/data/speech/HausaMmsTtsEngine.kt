@@ -13,6 +13,7 @@ import com.k2fsa.sherpa.onnx.getOfflineTtsConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,10 +23,12 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.coroutineContext
 import kotlin.math.min
 
 /**
  * Lazy Hausa TTS via sherpa-onnx. Native libs load on first use (background thread).
+ * Only one [AudioTrack] plays at a time so interrupted phrases do not echo.
  */
 @Singleton
 class HausaMmsTtsEngine @Inject constructor(
@@ -38,6 +41,9 @@ class HausaMmsTtsEngine @Inject constructor(
     private val initMutex = Mutex()
     private var offlineTts: OfflineTts? = null
     private var speakJob: Job? = null
+
+    @Volatile
+    private var activeTrack: AudioTrack? = null
 
     private val _isSpeaking = MutableStateFlow(false)
     val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
@@ -86,6 +92,7 @@ class HausaMmsTtsEngine @Inject constructor(
     fun stop() {
         speakJob?.cancel()
         speakJob = null
+        stopActiveTrack()
         _isSpeaking.value = false
     }
 
@@ -96,6 +103,17 @@ class HausaMmsTtsEngine @Inject constructor(
                 offlineTts?.release()
                 offlineTts = null
             }
+        }
+    }
+
+    private fun stopActiveTrack() {
+        val track = activeTrack ?: return
+        activeTrack = null
+        runCatching {
+            track.pause()
+            track.flush()
+            track.stop()
+            track.release()
         }
     }
 
@@ -121,7 +139,8 @@ class HausaMmsTtsEngine @Inject constructor(
         }
     }
 
-    private fun playSamples(samples: FloatArray, sampleRate: Int) {
+    private suspend fun playSamples(samples: FloatArray, sampleRate: Int) {
+        stopActiveTrack()
         val minBuf = AudioTrack.getMinBufferSize(
             sampleRate,
             AudioFormat.CHANNEL_OUT_MONO,
@@ -138,15 +157,24 @@ class HausaMmsTtsEngine @Inject constructor(
             .setBufferSizeInBytes(minBuf * 2)
             .setTransferMode(AudioTrack.MODE_STREAM)
             .build()
-        track.play()
-        var offset = 0
-        while (offset < samples.size) {
-            val chunk = min(CHUNK_SAMPLES, samples.size - offset)
-            track.write(samples, offset, chunk, AudioTrack.WRITE_BLOCKING)
-            offset += chunk
+        activeTrack = track
+        try {
+            track.play()
+            var offset = 0
+            while (offset < samples.size) {
+                coroutineContext.ensureActive()
+                if (activeTrack !== track) return
+                val chunk = min(CHUNK_SAMPLES, samples.size - offset)
+                track.write(samples, offset, chunk, AudioTrack.WRITE_BLOCKING)
+                offset += chunk
+            }
+        } finally {
+            runCatching {
+                track.stop()
+                track.release()
+            }
+            if (activeTrack === track) activeTrack = null
         }
-        track.stop()
-        track.release()
     }
 
     private companion object {

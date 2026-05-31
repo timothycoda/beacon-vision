@@ -112,7 +112,8 @@ class MlKitSceneDescriber @Inject constructor(
 
     private companion object {
         const val TAG = "MlKitSceneDescriber"
-        const val CONFIDENCE_THRESHOLD = 0.6f
-        const val MAX_LABELS = 3
+        // Slightly lower threshold + more labels = better recall; still capped for speed/TTS.
+        const val CONFIDENCE_THRESHOLD = 0.55f
+        const val MAX_LABELS = 5
     }
 }

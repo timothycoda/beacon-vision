@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.beacon.core.result.OperationResult
 import com.beacon.domain.device.SetPhoneOnlyModeUseCase
 import com.beacon.domain.speech.Speaker
+import com.beacon.domain.speech.awaitNotSpeaking
 import com.beacon.domain.vision.CapturedImage
 import com.beacon.domain.vision.DetectedObject
 import com.beacon.domain.vision.usecase.DescribeSceneUseCase
@@ -79,9 +80,7 @@ class PhoneGuidanceViewModel @Inject constructor(
         narrationJob = viewModelScope.launch {
             delay(NARRATION_START_DELAY_MS)
             while (isActive) {
-                if (!speaker.isSpeaking.value) {
-                    runNarrationTick()
-                }
+                runNarrationTick()
                 delay(NARRATION_INTERVAL_MS)
             }
         }
@@ -95,6 +94,7 @@ class PhoneGuidanceViewModel @Inject constructor(
                 val line = result.value.spokenSummary
                 _uiState.value = _uiState.value.copy(lastSpoken = line)
                 speaker.speak(line, interrupt = true)
+                speaker.awaitNotSpeaking()
             }
         }
     }

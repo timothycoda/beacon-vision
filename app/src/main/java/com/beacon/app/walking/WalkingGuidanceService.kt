@@ -17,6 +17,7 @@ import com.beacon.core.log.BeaconLog
 import com.beacon.core.result.OperationResult
 import com.beacon.domain.glasses.GlassesRepository
 import com.beacon.domain.speech.Speaker
+import com.beacon.domain.speech.awaitNotSpeaking
 import com.beacon.domain.vision.usecase.CapturePhotoUseCase
 import com.beacon.domain.vision.usecase.DescribeSceneUseCase
 import dagger.hilt.android.AndroidEntryPoint
@@ -85,10 +86,14 @@ class WalkingGuidanceService : Service() {
             }
             is OperationResult.Success -> {
                 when (val described = describeScene(capture.value)) {
-                    is OperationResult.Failure ->
+                    is OperationResult.Failure -> {
                         speaker.speak(described.message, interrupt = true)
-                    is OperationResult.Success ->
+                        speaker.awaitNotSpeaking()
+                    }
+                    is OperationResult.Success -> {
                         speaker.speak(described.value.spokenSummary, interrupt = true)
+                        speaker.awaitNotSpeaking()
+                    }
                 }
             }
         }
