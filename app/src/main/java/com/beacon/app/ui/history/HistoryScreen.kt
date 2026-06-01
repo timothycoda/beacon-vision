@@ -30,7 +30,7 @@ fun HistoryScreen(
     val entries by viewModel.entries.collectAsStateWithLifecycle()
 
     BeaconScreen {
-        BeaconTopBar(title = "Beacon")
+        BeaconTopBar()
         BeaconHeading(
             title = "History",
             subtitle = "Your last descriptions, readings, and emergency alerts.",

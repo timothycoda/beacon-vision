@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
@@ -20,16 +21,16 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.beacon.app.BuildConfig
+import com.beacon.app.R
 import com.beacon.app.ui.components.BeaconHeading
 import com.beacon.app.ui.components.BeaconScreen
 import com.beacon.app.ui.components.BeaconTopBar
 import com.beacon.app.ui.components.BentoCard
 import com.beacon.app.ui.components.SecondaryActionButton
-import com.beacon.app.ui.theme.BeaconLime
-import com.beacon.app.ui.theme.BeaconLimeText
 import com.beacon.app.ui.theme.BeaconOnDarkMuted
-import com.beacon.app.ui.theme.BeaconWhiteCard
-import com.beacon.app.ui.theme.BeaconWhiteCardText
+import com.beacon.app.ui.theme.bentoWhiteCardColor
+import com.beacon.app.ui.theme.bentoWhiteCardOnColor
 import com.beacon.domain.guidance.GuidanceLanguage
 import com.beacon.domain.modelpack.ModelPackDownloadFailure
 import com.beacon.domain.modelpack.ModelPackInstallState
@@ -44,7 +45,7 @@ fun ModelPacksScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     BeaconScreen {
-        BeaconTopBar(title = "Beacon")
+        BeaconTopBar()
         BeaconHeading(
             title = "Offline AI packs",
             subtitle = "Download models, then choose which powers your guidance.",
@@ -114,6 +115,14 @@ private fun handlePrimaryAction(pack: ModelPackStatus, viewModel: ModelPacksView
 }
 
 @Composable
+private fun hausaGuidanceHint(): String {
+    if (BuildConfig.BRAND == "elenii") {
+        return stringResource(R.string.guidance_language_hausa_hint)
+    }
+    return "Hausa uses translated labels and on-device MMS speech when the voice pack is installed."
+}
+
+@Composable
 private fun GuidanceLanguageToggle(language: GuidanceLanguage, onSelect: (GuidanceLanguage) -> Unit) {
     Row(
         modifier = Modifier
@@ -129,7 +138,7 @@ private fun GuidanceLanguageToggle(language: GuidanceLanguage, onSelect: (Guidan
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                text = "Hausa uses translated labels and on-device MMS speech when the voice pack is installed.",
+                text = hausaGuidanceHint(),
                 style = MaterialTheme.typography.bodyMedium,
                 color = BeaconOnDarkMuted,
             )
@@ -171,12 +180,12 @@ private fun DownloadingPackBanner(
             .semantics { liveRegion = LiveRegionMode.Polite },
     ) {
         BentoCard(
-            title = "Downloading ${pack.displayName}",
+            title = "Downloading ${pack.brandDisplayName()}",
             value = "$percent% · notification shows progress",
             onClick = onPause,
-            containerColor = BeaconLime,
-            contentColor = BeaconLimeText,
-            contentDescription = "Downloading ${pack.displayName}. Double tap to pause.",
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            contentDescription = "Downloading ${pack.brandDisplayName()}. Double tap to pause.",
         )
         LinearProgressIndicator(
             progress = { progress },
@@ -220,12 +229,12 @@ private fun PackCard(
 
     Column(modifier = Modifier.padding(bottom = 8.dp)) {
         BentoCard(
-            title = pack.displayName,
+            title = pack.brandDisplayName(),
             value = "${pack.ramHint}\n$statusLine",
             onClick = onPrimaryAction,
-            containerColor = if (active) BeaconLime else BeaconWhiteCard,
-            contentColor = if (active) BeaconLimeText else BeaconWhiteCardText,
-            contentDescription = "${pack.displayName}. ${ModelPacksViewModel.primaryActionLabel(pack)}.",
+            containerColor = if (active) MaterialTheme.colorScheme.primary else bentoWhiteCardColor(),
+            contentColor = if (active) MaterialTheme.colorScheme.onPrimary else bentoWhiteCardOnColor(),
+            contentDescription = "${pack.brandDisplayName()}. ${ModelPacksViewModel.primaryActionLabel(pack)}.",
         )
         if (pack.state == ModelPackInstallState.Paused && onCancelPartial != null) {
             LinearProgressIndicator(
@@ -244,17 +253,17 @@ private fun PackCard(
                 label = "Discard partial download",
                 onClick = onCancelPartial,
                 modifier = Modifier.fillMaxWidth(),
-                contentDescription = "Discard partial download for ${pack.displayName}.",
+                contentDescription = "Discard partial download for ${pack.brandDisplayName()}.",
             )
         }
         if (pack.state == ModelPackInstallState.Installed) {
             SecondaryActionButton(
-                label = "Remove ${pack.displayName}",
+                label = "Remove ${pack.brandDisplayName()}",
                 onClick = onDelete,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 6.dp),
-                contentDescription = "Remove ${pack.displayName} from this device.",
+                contentDescription = "Remove ${pack.brandDisplayName()} from this device.",
             )
         }
     }

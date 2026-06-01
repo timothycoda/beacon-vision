@@ -9,6 +9,12 @@ class ObserveGuidanceInputModeUseCase @Inject constructor(
     operator fun invoke(): Flow<GuidanceInputMode> = preferences.guidanceInputMode()
 }
 
+class SetGuidanceInputModeUseCase @Inject constructor(
+    private val preferences: DevicePreferences,
+) {
+    suspend operator fun invoke(mode: GuidanceInputMode) = preferences.setGuidanceInputMode(mode)
+}
+
 class SetPhoneOnlyModeUseCase @Inject constructor(
     private val preferences: DevicePreferences,
 ) {

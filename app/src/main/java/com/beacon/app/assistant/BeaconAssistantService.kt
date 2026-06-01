@@ -138,7 +138,7 @@ class BeaconAssistantService : Service() {
         haptics.confirm()
         // Speak a short cue, then wait for it to finish so it is not picked up by
         // the microphone, before we start listening.
-        speaker.speak("Beacon. Listening.")
+        speaker.speak(getString(R.string.assistant_listening_prompt))
         waitUntilSpoken()
 
         val transcript = listenOnce()

@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -83,14 +84,14 @@ fun EmergencyScreen(
     }
 
     BeaconScreen {
-        BeaconTopBar(title = "Beacon")
+        BeaconTopBar()
         BeaconHeading(
             title = "Emergency",
             subtitle = "Contact someone you trust. You review and send the message.",
         )
 
         Text(
-            text = "Beacon is not a replacement for emergency services. Call your local emergency number if you are in immediate danger.",
+            text = stringResource(R.string.emergency_disclaimer),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.error,
         )

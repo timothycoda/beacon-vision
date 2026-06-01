@@ -6,6 +6,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -37,6 +40,7 @@ import com.beacon.app.ui.onboarding.OnboardingScreen
 import com.beacon.app.ui.phone.PhoneGuidanceScreen
 import com.beacon.app.ui.helper.TrustedHelpersScreen
 import com.beacon.app.ui.welcome.WelcomeScreen
+import com.beacon.domain.device.GuidanceInputMode
 import com.beacon.domain.glasses.model.ConnectionState
 
 @Composable
@@ -46,14 +50,21 @@ fun BeaconApp(
 ) {
     val appNavViewModel: AppNavViewModel = hiltViewModel()
     val initialDestination by appNavViewModel.startDestination.collectAsStateWithLifecycle()
-    val startDestination = initialDestination
-
-    if (startDestination == null) {
+    val guidanceMode by appNavViewModel.guidanceMode.collectAsStateWithLifecycle()
+    if (initialDestination == null) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
         return
     }
+
+    var navGraphStart by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(initialDestination) {
+        if (navGraphStart == null && initialDestination != null) {
+            navGraphStart = initialDestination
+        }
+    }
+    val startDestination = navGraphStart ?: return
 
     val navController = rememberNavController()
     val context = LocalContext.current
@@ -85,12 +96,7 @@ fun BeaconApp(
             OnboardingScreen(
                 onFinished = {
                     appNavViewModel.completeFeatureTour()
-                    val target = if (appNavViewModel.alreadySetUp.value) {
-                        BeaconDestinations.HOME
-                    } else {
-                        BeaconDestinations.PERMISSIONS
-                    }
-                    navController.navigate(target) {
+                    navController.navigate(BeaconDestinations.PERMISSIONS) {
                         popUpTo(BeaconDestinations.WELCOME) { inclusive = true }
                     }
                 },
@@ -99,8 +105,14 @@ fun BeaconApp(
         composable(BeaconDestinations.PERMISSIONS) {
             PermissionEducationScreen(
                 onPermissionsReady = {
-                    navController.navigate(BeaconDestinations.PAIRING) {
-                        popUpTo(BeaconDestinations.ONBOARDING) { inclusive = true }
+                    appNavViewModel.markSetupComplete()
+                    val destination = if (guidanceMode == GuidanceInputMode.PhoneCamera) {
+                        BeaconDestinations.PHONE_GUIDANCE
+                    } else {
+                        BeaconDestinations.HOME
+                    }
+                    navController.navigate(destination) {
+                        popUpTo(BeaconDestinations.PERMISSIONS) { inclusive = true }
                     }
                 },
             )
@@ -108,6 +120,11 @@ fun BeaconApp(
         composable(BeaconDestinations.PAIRING) {
             GlassesPairingScreen(
                 onConnected = {
+                    navController.navigate(BeaconDestinations.HOME) {
+                        popUpTo(BeaconDestinations.PAIRING) { inclusive = true }
+                    }
+                },
+                onSkip = {
                     navController.navigate(BeaconDestinations.HOME) {
                         popUpTo(BeaconDestinations.PAIRING) { inclusive = true }
                     }
@@ -128,7 +145,10 @@ fun BeaconApp(
         composable(BeaconDestinations.PHONE_GUIDANCE) {
             PhoneGuidanceScreen(
                 onBackToHome = {
-                    navController.popBackStack(BeaconDestinations.HOME, false)
+                    navController.navigate(BeaconDestinations.HOME) {
+                        popUpTo(BeaconDestinations.PHONE_GUIDANCE) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 },
             )
         }

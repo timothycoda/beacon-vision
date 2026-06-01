@@ -34,7 +34,7 @@ fun TrustedHelpersScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     BeaconScreen {
-        BeaconTopBar(title = "Beacon")
+        BeaconTopBar()
         BeaconHeading(
             title = "Trusted helpers",
             subtitle = "People you can reach on WhatsApp for help or emergencies.",
@@ -55,8 +55,8 @@ fun TrustedHelpersScreen(
         BentoCard(
             title = "Add helper",
             onClick = viewModel::startNew,
-            containerColor = BeaconLime,
-            contentColor = BeaconLimeText,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             minHeight = BeaconDimens.bentoWideMinHeight,
             contentDescription = "Add a trusted helper",
         )
@@ -122,8 +122,8 @@ private fun HelperEditor(
     BentoCard(
         title = "Save",
         onClick = viewModel::save,
-        containerColor = BeaconLime,
-        contentColor = BeaconLimeText,
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
         minHeight = BeaconDimens.bentoWideMinHeight,
         contentDescription = "Save trusted helper",
     )

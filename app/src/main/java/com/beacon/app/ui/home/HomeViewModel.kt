@@ -9,14 +9,12 @@ import com.beacon.domain.glasses.usecase.ObserveConnectionStateUseCase
 import com.beacon.domain.guidance.GuidanceLanguage
 import com.beacon.domain.device.GuidanceInputMode
 import com.beacon.domain.device.ObserveGuidanceInputModeUseCase
-import com.beacon.domain.device.SetPhoneOnlyModeUseCase
 import com.beacon.domain.modelpack.ObserveActiveModelPacksSummaryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class HomeUiState(
@@ -34,7 +32,6 @@ class HomeViewModel @Inject constructor(
     observeBattery: ObserveBatteryUseCase,
     observeActiveModelPacks: ObserveActiveModelPacksSummaryUseCase,
     observeGuidanceMode: ObserveGuidanceInputModeUseCase,
-    private val setPhoneOnlyMode: SetPhoneOnlyModeUseCase,
 ) : ViewModel() {
 
     val uiState: StateFlow<HomeUiState> =
@@ -55,9 +52,6 @@ class HomeViewModel @Inject constructor(
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
     fun enterPhoneMode(onNavigate: () -> Unit) {
-        viewModelScope.launch {
-            setPhoneOnlyMode(true)
-            onNavigate()
-        }
+        onNavigate()
     }
 }

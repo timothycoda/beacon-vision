@@ -40,6 +40,8 @@ dependencies {
     implementation(libs.mlkit.image.labeling)
     implementation(libs.mlkit.text.recognition)
     implementation(libs.googleMlkitObjDetection)
+    implementation(libs.mlkit.pose.detection)
+    implementation(libs.mlkit.face.detection)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

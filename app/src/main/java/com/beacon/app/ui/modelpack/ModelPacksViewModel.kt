@@ -17,6 +17,7 @@ import com.beacon.domain.modelpack.PauseModelPackDownloadUseCase
 import com.beacon.domain.modelpack.SetDefaultNarrationPackUseCase
 import com.beacon.domain.modelpack.SetDefaultVoicePackUseCase
 import com.beacon.domain.modelpack.SetModelPackWifiOnlyUseCase
+import com.beacon.domain.speech.Speaker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -45,6 +46,7 @@ class ModelPacksViewModel @Inject constructor(
     private val setDefaultVoice: SetDefaultVoicePackUseCase,
     observeGuidanceLanguage: ObserveGuidanceLanguageUseCase,
     private val setGuidanceLanguageUseCase: SetGuidanceLanguageUseCase,
+    private val speaker: Speaker,
 ) : ViewModel() {
 
     private val wifiOnly = MutableStateFlow(true)
@@ -102,6 +104,13 @@ class ModelPacksViewModel @Inject constructor(
     fun setGuidanceLanguage(language: GuidanceLanguage) {
         if (uiState.value.guidanceLanguage == language) return
         viewModelScope.launch {
+            if (language == GuidanceLanguage.Hausa) {
+                speaker.prepareHausaVoice()
+                val hausa = uiState.value.packs.firstOrNull { it.id == ModelPackId.HAUSA_VOICE }
+                if (hausa?.state == ModelPackInstallState.Installed && !hausa.isDefaultVoice) {
+                    setDefaultVoice(ModelPackId.HAUSA_VOICE)
+                }
+            }
             setGuidanceLanguageUseCase(language)
         }
     }

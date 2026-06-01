@@ -10,13 +10,15 @@ import com.beacon.app.emergency.WhatsAppLaunchResult
 import com.beacon.core.result.OperationResult
 import com.beacon.data.phone.PhoneModeLatestImageHolder
 import com.beacon.data.phone.PhoneModeSessionController
-import com.beacon.domain.device.SetPhoneOnlyModeUseCase
+import com.beacon.domain.guidance.GuidanceLanguage
+import com.beacon.data.guidance.GuidanceLanguagePreferences
 import com.beacon.domain.helper.ObserveTrustedHelpersUseCase
 import com.beacon.domain.helper.TrustedHelper
 import com.beacon.domain.speech.Speaker
 import com.beacon.domain.speech.awaitNotSpeaking
 import com.beacon.domain.vision.CapturedImage
 import com.beacon.domain.vision.DetectedObject
+import com.beacon.data.vision.PhoneObjectNarration
 import com.beacon.domain.vision.usecase.DescribeSceneUseCase
 import com.beacon.domain.vision.usecase.DetectObjectsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,6 +41,7 @@ enum class HelperPickerMode { CALL, MESSAGE }
 
 data class PhoneGuidanceUiState(
     val detectedObjects: List<DetectedObject> = emptyList(),
+    val guidanceLanguage: GuidanceLanguage = GuidanceLanguage.English,
     val lastSpoken: String? = null,
     val cameraReady: Boolean = false,
     val primaryHelperName: String? = null,
@@ -54,11 +57,11 @@ class PhoneGuidanceViewModel @Inject constructor(
     private val detectObjects: DetectObjectsUseCase,
     private val describeScene: DescribeSceneUseCase,
     private val speaker: Speaker,
-    private val setPhoneOnlyMode: SetPhoneOnlyModeUseCase,
     private val latestImageHolder: PhoneModeLatestImageHolder,
     private val sessionController: PhoneModeSessionController,
     private val helperHandoff: HelperHandoffManager,
     private val observeHelpers: ObserveTrustedHelpersUseCase,
+    private val languagePrefs: GuidanceLanguagePreferences,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PhoneGuidanceUiState())
@@ -70,6 +73,14 @@ class PhoneGuidanceViewModel @Inject constructor(
     private var lastDetectAtMs = 0L
 
     init {
+        viewModelScope.launch {
+            languagePrefs.language.collect { language ->
+                _uiState.update { it.copy(guidanceLanguage = language) }
+                if (language == GuidanceLanguage.Hausa) {
+                    speaker.prepareHausaVoice()
+                }
+            }
+        }
         viewModelScope.launch {
             observeHelpers().collect { helpers ->
                 val primary = helpers.firstOrNull { it.isPrimaryHelper }
@@ -104,7 +115,7 @@ class PhoneGuidanceViewModel @Inject constructor(
     }
 
     fun onHostResumed() {
-        helperHandoff.onReturnedFromWhatsApp()
+        helperHandoff.onReturnedFromWhatsApp(appContext)
     }
 
     fun callHelperOnWhatsApp() {
@@ -186,10 +197,7 @@ class PhoneGuidanceViewModel @Inject constructor(
         narrationJob?.cancel()
         speaker.stop()
         sessionController.markPhoneModeStopped()
-        viewModelScope.launch {
-            setPhoneOnlyMode(false)
-            onDone()
-        }
+        onDone()
     }
 
     private fun startNarrationLoop() {
@@ -207,13 +215,20 @@ class PhoneGuidanceViewModel @Inject constructor(
 
     private suspend fun runNarrationTick() {
         val jpeg = latestJpeg ?: return
+        val objects = _uiState.value.detectedObjects
+        val language = _uiState.value.guidanceLanguage
         when (val result = describeScene(CapturedImage(jpeg))) {
             is OperationResult.Failure -> Unit
             is OperationResult.Success -> {
-                val line = result.value.spokenSummary
+                val line = PhoneObjectNarration.enrichSpokenSummary(
+                    sceneSummary = result.value.spokenSummary,
+                    objects = objects,
+                    language = language,
+                )
                 latestImageHolder.updateSceneSummary(line)
                 _uiState.value = _uiState.value.copy(lastSpoken = line)
-                speaker.speak(line, interrupt = true)
+                val useHausaMms = language == GuidanceLanguage.Hausa
+                speaker.speak(line, interrupt = !useHausaMms)
                 speaker.awaitNotSpeaking()
             }
         }

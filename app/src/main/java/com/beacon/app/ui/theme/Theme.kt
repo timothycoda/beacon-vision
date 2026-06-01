@@ -3,13 +3,10 @@ package com.beacon.app.ui.theme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import com.beacon.app.BuildConfig
 
-/**
- * Beacon's bento dark theme. The reference design is dark-first with bold
- * lime/yellow/white accents, so the app uses a single high-contrast dark scheme
- * for a consistent, accessible look.
- */
-private val BentoDarkColors = darkColorScheme(
+private val BeaconBentoColors = darkColorScheme(
     primary = BeaconLime,
     onPrimary = BeaconLimeText,
     secondary = BeaconYellow,
@@ -25,14 +22,44 @@ private val BentoDarkColors = darkColorScheme(
     onError = BeaconDangerText,
 )
 
+private val EleniiBentoColors = darkColorScheme(
+    primary = EleniiSkyBlue,
+    onPrimary = EleniiSkyBlueOn,
+    secondary = EleniiPrimaryBrand,
+    onSecondary = EleniiOnDark,
+    background = EleniiBackground,
+    onBackground = EleniiOnDark,
+    surface = EleniiSurface,
+    onSurface = EleniiOnDark,
+    surfaceVariant = EleniiSurfaceAlt,
+    onSurfaceVariant = EleniiOnDarkMuted,
+    outline = EleniiOutline,
+    error = BeaconDanger,
+    onError = BeaconDangerText,
+)
+
+private val AppColorScheme
+    get() = if (BuildConfig.BRAND == "elenii") EleniiBentoColors else BeaconBentoColors
+
+/**
+ * Shared Compose theme for Beacon and Elenii product flavors. Visual tokens come
+ * from [AppColorScheme]; prefer MaterialTheme.colorScheme over hardcoded brand colors.
+ */
 @Composable
 fun BeaconTheme(
     content: @Composable () -> Unit,
 ) {
     MaterialTheme(
-        colorScheme = BentoDarkColors,
+        colorScheme = AppColorScheme,
         typography = BeaconTypography,
         shapes = BeaconShapes,
         content = content,
     )
 }
+
+/** Bento white action cards (shared layout token). */
+@Composable
+fun bentoWhiteCardColor(): Color = BeaconWhiteCard
+
+@Composable
+fun bentoWhiteCardOnColor(): Color = BeaconWhiteCardText

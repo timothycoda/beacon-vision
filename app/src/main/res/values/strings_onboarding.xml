@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_device_title">How will you use the app?</string>
+    <string name="onboarding_device_subtitle">Choose your main setup. You can change this later in settings.</string>
+    <string name="onboarding_device_glasses_title">Smart glasses</string>
+    <string name="onboarding_device_glasses_body">Connect X01 or HeyCyan glasses for hands-free guidance.</string>
+    <string name="onboarding_device_phone_title">Phone camera</string>
+    <string name="onboarding_device_phone_body">Use your phone camera with on-screen detection and narration.</string>
+    <string name="onboarding_choose_device_continue">Continue</string>
+    <string name="onboarding_choose_device_continue_cd">Continue with selected device</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_next_cd">Next page</string>
+    <string name="onboarding_finish">Continue</string>
+    <string name="onboarding_finish_cd">Continue to permissions</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_skip_cd">Skip introduction</string>
+    <string name="onboarding_glasses_overview_title">Smart glasses</string>
+    <string name="onboarding_phone_overview_title">Phone camera</string>
+    <string name="onboarding_hausa_title">Hausa guidance</string>
+    <string name="onboarding_helpers_title">Trusted helpers</string>
+
+    <string name="permissions_heading">A few permissions</string>
+    <string name="permissions_intro_phone">We need camera access for phone guidance. Notifications are optional but help keep guidance running.</string>
+    <string name="permissions_camera_title">Camera</string>
+    <string name="permissions_camera_reason">To see what is ahead and describe the scene using your phone.</string>
+    <string name="permissions_bluetooth_title">Bluetooth</string>
+    <string name="permissions_bluetooth_reason">To find and connect to your smart glasses.</string>
+    <string name="permissions_notifications_title">Notifications</string>
+    <string name="permissions_notifications_reason">To keep guidance running and show status.</string>
+    <string name="permissions_camera_denied">Camera permission was not granted. Phone guidance needs the camera. Try again or enable it in Settings.</string>
+    <string name="permissions_bluetooth_denied">Bluetooth permission was not granted. The app cannot connect to your glasses without it. Try again or enable it in Settings.</string>
+    <string name="permissions_allow">Allow permissions</string>
+    <string name="permissions_allow_cd">Allow required permissions</string>
+    <string name="permissions_try_again">Try again</string>
+    <string name="permissions_skip">Skip for now</string>
+    <string name="permissions_skip_cd">Skip permissions for now. Some features will be limited.</string>
+</resources>

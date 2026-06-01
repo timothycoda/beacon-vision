@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="beacon_window_background">#0A0A0A</color>
     <color name="ic_launcher_background">#0A0A0A</color>
+    <color name="brand_window_background">#0A0A0A</color>
+    <color name="brand_splash_background">#0A0A0A</color>
 </resources>

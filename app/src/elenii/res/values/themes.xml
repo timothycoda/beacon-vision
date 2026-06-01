@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Beacon" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/brand_splash_background</item>
+        <item name="android:windowSplashScreenBackground">@color/brand_splash_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/brand_splash_logo</item>
+    </style>
+</resources>

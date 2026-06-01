@@ -34,6 +34,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.beacon.app.R
+import com.beacon.app.ui.theme.bentoWhiteCardColor
+import com.beacon.app.ui.theme.bentoWhiteCardOnColor
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -45,14 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.beacon.app.ui.components.BeaconChip
 import com.beacon.app.ui.components.BentoCard
 import com.beacon.app.ui.components.SecondaryActionButton
-import com.beacon.app.ui.theme.BeaconBackground
 import com.beacon.app.ui.theme.BeaconDimens
-import com.beacon.app.ui.theme.BeaconLime
-import com.beacon.app.ui.theme.BeaconLimeText
-import com.beacon.app.ui.theme.BeaconOnDark
-import com.beacon.app.ui.theme.BeaconOnDarkMuted
-import com.beacon.app.ui.theme.BeaconWhiteCard
-import com.beacon.app.ui.theme.BeaconWhiteCardText
 import java.util.concurrent.Executors
 
 @Composable
@@ -97,7 +94,7 @@ fun PhoneGuidanceScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BeaconBackground),
+            .background(MaterialTheme.colorScheme.background),
     ) {
         if (hasCameraPermission) {
             PhoneCameraPreview(
@@ -107,6 +104,7 @@ fun PhoneGuidanceScreen(
             )
             DetectionOverlay(
                 objects = state.detectedObjects,
+                guidanceLanguage = state.guidanceLanguage,
                 modifier = Modifier.fillMaxSize(),
             )
         } else {
@@ -127,7 +125,7 @@ fun PhoneGuidanceScreen(
             BeaconChip(
                 label = "Glasses home",
                 selected = true,
-                accent = BeaconLime,
+                accent = MaterialTheme.colorScheme.primary,
                 onClick = { viewModel.exitPhoneMode(onBackToHome) },
                 modifier = Modifier.semantics {
                     contentDescription = "Return to glasses home screen"
@@ -162,7 +160,7 @@ fun PhoneGuidanceScreen(
                 )
             }
             Text(
-                text = "WhatsApp uses your phone camera. Beacon pauses detection during a call.",
+                text = stringResource(R.string.phone_whatsapp_pause),
                 color = Color.White.copy(alpha = 0.72f),
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(bottom = 8.dp),
@@ -170,15 +168,15 @@ fun PhoneGuidanceScreen(
             PhoneModeHelperButton(
                 title = "Call helper on WhatsApp",
                 onClick = viewModel::callHelperOnWhatsApp,
-                containerColor = BeaconLime,
-                contentColor = BeaconLimeText,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
                 contentDescription = "Call helper on WhatsApp. Opens WhatsApp with a prefilled message.",
             )
             PhoneModeHelperButton(
                 title = "Message helper",
                 onClick = viewModel::messageHelper,
-                containerColor = BeaconWhiteCard,
-                contentColor = BeaconWhiteCardText,
+                containerColor = bentoWhiteCardColor(),
+                contentColor = bentoWhiteCardOnColor(),
                 contentDescription = "Message helper on WhatsApp",
             )
             if (!hasCameraPermission) {

@@ -85,6 +85,10 @@ class SpeechController @Inject constructor(
                     hausaMms.release()
                 }
 
+                if (language == GuidanceLanguage.Hausa && modelPackPaths.isHausaVoiceInstalled()) {
+                    hausaMms.warmUp()
+                }
+
                 if (shouldUseAndroidTts()) {
                     withContext(dispatchers.main) {
                         runCatching { recreateEngine(settings) }
@@ -171,8 +175,9 @@ class SpeechController @Inject constructor(
             }
             hausaMms.speak(text, currentSettings.speechRate, interrupt) { mmsOk ->
                 if (!mmsOk) {
-                    BeaconLog.w(TAG, "Hausa MMS unavailable, falling back to system TTS")
+                    BeaconLog.w(TAG, "Hausa MMS speak failed, falling back to system TTS")
                     scope.launch(dispatchers.main) {
+                        ensureAndroidFallbackReady()
                         speakWithAndroid(text, interrupt)
                     }
                 }
@@ -182,11 +187,23 @@ class SpeechController @Inject constructor(
         speakWithAndroid(text, interrupt)
     }
 
+    override fun prepareHausaVoice() {
+        if (modelPackPaths.isHausaVoiceInstalled()) {
+            hausaMms.warmUp()
+        }
+    }
+
+    private fun ensureAndroidFallbackReady() {
+        if (tts == null) {
+            runCatching { recreateEngine(currentSettings) }
+        }
+    }
+
     private fun speakWithAndroid(text: String, interrupt: Boolean) {
         val engine = tts
         if (!ready || engine == null) {
             pending = text to interrupt
-            if (tts == null && shouldUseAndroidTts()) {
+            if (tts == null) {
                 scope.launch(dispatchers.main) {
                     runCatching { recreateEngine(currentSettings) }
                 }

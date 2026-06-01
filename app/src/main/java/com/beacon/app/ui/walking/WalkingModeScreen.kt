@@ -34,7 +34,7 @@ fun WalkingModeScreen(
     LaunchedEffect(Unit) { viewModel.refreshRunningState() }
 
     BeaconScreen {
-        BeaconTopBar(title = "Beacon")
+        BeaconTopBar()
         BeaconHeading(
             title = "Walking mode",
             subtitle = "Short cues about what is ahead while you walk.",

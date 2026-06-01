@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="brand_name">Elenii</string>
+    <string name="welcome_title">Elenii</string>
+    <string name="welcome_safety">Elenii is an assistive companion. It can be wrong. Always use your cane, guide dog, caregiver support, and your own judgment.</string>
+    <string name="welcome_safety_cd">Safety note: Elenii is an assistive companion and may be wrong.</string>
+    <string name="welcome_get_started_cd">Get started. Learn what Elenii can do.</string>
+    <string name="emergency_disclaimer">Elenii is not a replacement for emergency services. Call your local emergency number if you are in immediate danger.</string>
+    <string name="permissions_intro">Elenii needs your permission for a few things. We only ask when a feature needs it.</string>
+    <string name="pairing_bluetooth_rationale">Elenii needs the Bluetooth (Nearby devices) permission to find your glasses. Please allow it to continue.</string>
+    <string name="phone_whatsapp_pause">WhatsApp uses your phone camera. Elenii pauses detection during a call.</string>
+    <string name="handoff_pause_tts">Elenii will pause camera detection during the call and resume when you return.</string>
+    <string name="handoff_resume_tts">Elenii is back. Camera guidance resumed.</string>
+    <string name="handoff_message_template">Hello, I need visual assistance on Elenii. Please message me when you can. {lastSceneSummaryText} {locationText}</string>
+    <string name="handoff_call_template">Hello, I need visual assistance on Elenii. Please start a WhatsApp video call with me and guide me. I will point my phone camera forward so you can see what is ahead. {lastSceneSummaryText} {locationText}</string>
+    <string name="onboarding_page_ahead_body">Point your glasses forward. Elenii describes the scene in a short, clear voice cue.</string>
+    <string name="onboarding_page_read_body">Capture signs, labels, or documents. Elenii reads the text aloud—fully on your phone.</string>
+    <string name="onboarding_page_handsfree_body">Long-press your glasses, say a command, and Elenii responds—even with the screen locked.</string>
+    <string name="onboarding_glasses_overview_body">Connect your X01 or HeyCyan glasses. Ask what is ahead, read signs and labels, and use hands-free voice commands—even with the screen locked.</string>
+    <string name="onboarding_phone_overview_body">Use your phone camera for live object detection and spoken guidance. Great when you are not wearing glasses or want a larger view.</string>
+    <string name="onboarding_hausa_body">Switch guidance to Hausa in Model packs. Elenii uses on-device labels in Hausa and can speak with the Hausa voice pack—fully offline.</string>
+    <string name="onboarding_helpers_body">Add trusted helpers in Settings. From phone camera mode you can open WhatsApp to call or message them with a prefilled note about what you see.</string>
+    <string name="walking_notification_channel_desc">Shows when Elenii is giving periodic guidance while you walk.</string>
+    <string name="walking_notification_title">Elenii walking mode</string>
+    <string name="assistant_notification_channel_desc">Lets you trigger Elenii from your glasses with the screen locked.</string>
+    <string name="assistant_notification_title">Elenii hands-free is on</string>
+    <string name="emergency_auto_send_prompt">Allow Elenii to send SMS so saying emergency on your glasses sends help without tapping Send.</string>
+    <string name="assistant_listening_prompt">Elenii. Listening.</string>
+    <string name="model_pack_hausa_voice">Elenii Hausa Voice</string>
+    <string name="model_pack_vision_pro">Elenii Vision Pro</string>
+    <string name="model_pack_vision_plus">Elenii Vision Plus</string>
+    <string name="guidance_language_hausa_hint">Hausa uses translated labels and on-device MMS speech when the Elenii Hausa voice pack is installed.</string>
+</resources>

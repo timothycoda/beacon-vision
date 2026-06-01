@@ -54,7 +54,7 @@ fun ReadThisScreen(
     }
 
     BeaconScreen {
-        BeaconTopBar(title = "Beacon")
+        BeaconTopBar()
         BeaconHeading(
             title = "Read this",
             subtitle = "Capture text and Beacon will read it aloud.",

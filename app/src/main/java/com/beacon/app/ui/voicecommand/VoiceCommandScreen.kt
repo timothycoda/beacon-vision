@@ -99,7 +99,7 @@ fun VoiceCommandScreen(
     }
 
     BeaconScreen {
-        BeaconTopBar(title = "Beacon")
+        BeaconTopBar()
         BeaconHeading(
             title = "Voice command",
             subtitle = "Say what you need. For example: \u201Cwhat is ahead\u201D, \u201Cread this\u201D, \u201Cwalking mode\u201D, or \u201Cemergency\u201D.",
@@ -116,7 +116,7 @@ fun VoiceCommandScreen(
         BentoCard(
             title = if (state.isListening) "Listening…" else "Tap to speak",
             onClick = ::listen,
-            containerColor = BeaconLime,
+            containerColor = MaterialTheme.colorScheme.primary,
             contentColor = Color.Black,
             leadingIcon = Icons.Filled.Mic,
             minHeight = BeaconDimens.bentoWideMinHeight,
@@ -157,7 +157,7 @@ private fun MicButton(
     )
     val background = when {
         !enabled -> MaterialTheme.colorScheme.surfaceVariant
-        listening -> BeaconLime
+        listening -> MaterialTheme.colorScheme.primary
         else -> BeaconCardDark
     }
     val tint = if (listening) Color.Black else BeaconOnDark
@@ -195,7 +195,7 @@ private fun StatusText(status: VoiceStatus) {
         VoiceStatus.Preparing -> "Getting ready…" to MaterialTheme.colorScheme.onSurfaceVariant
         VoiceStatus.Listening -> "Listening… speak now." to MaterialTheme.colorScheme.onBackground
         is VoiceStatus.Hearing -> "\u201C${status.partial}\u201D" to MaterialTheme.colorScheme.onBackground
-        is VoiceStatus.Recognized -> "Okay: ${status.label}" to BeaconLime
+        is VoiceStatus.Recognized -> "Okay: ${status.label}" to MaterialTheme.colorScheme.primary
         is VoiceStatus.NotUnderstood -> "I heard \u201C${status.transcript}\u201D but didn't recognise a command." to MaterialTheme.colorScheme.onSurfaceVariant
         is VoiceStatus.Error -> status.message to BeaconDanger
     }

@@ -31,7 +31,7 @@ fun DeviceStatusScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     BeaconScreen {
-        BeaconTopBar(title = "Beacon")
+        BeaconTopBar()
         BeaconHeading(
             title = "Glasses status",
             subtitle = "Connection, battery, and device details.",
@@ -68,8 +68,8 @@ fun DeviceStatusScreen(
         BentoCard(
             title = "Voice settings",
             onClick = onOpenVoiceSettings,
-            containerColor = BeaconLime,
-            contentColor = BeaconLimeText,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             leadingIcon = Icons.Filled.RecordVoiceOver,
             minHeight = BeaconDimens.bentoWideMinHeight,
             contentDescription = "Choose and test the voice Beacon uses to speak.",

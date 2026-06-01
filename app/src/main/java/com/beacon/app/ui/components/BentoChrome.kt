@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -27,20 +28,23 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.beacon.app.ui.theme.BeaconLime
+import com.beacon.app.R
 
 /**
- * App top bar matching the reference: bold wordmark on the left, optional
- * circular icon button on the right (white circle / dark icon).
+ * App top bar: flavor wordmark when available, otherwise dot + app name.
  */
 @Composable
 fun BeaconTopBar(
     modifier: Modifier = Modifier,
-    title: String = "Beacon",
+    title: String? = null,
     trailingIcon: ImageVector? = null,
     trailingContentDescription: String? = null,
     onTrailingClick: (() -> Unit)? = null,
 ) {
+    val appName = stringResource(R.string.app_name)
+    val barTitle = title ?: appName
+    val headerWordmarkId = rememberBrandDrawableId("brand_header_wordmark")
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -49,19 +53,23 @@ fun BeaconTopBar(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(12.dp)
-                    .background(BeaconLime, CircleShape),
-            )
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier
-                    .padding(start = 10.dp)
-                    .semantics { heading() },
-            )
+            if (headerWordmarkId != null) {
+                BrandHeaderWordmark()
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .background(MaterialTheme.colorScheme.primary, CircleShape),
+                )
+                Text(
+                    text = barTitle,
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .padding(start = 10.dp)
+                        .semantics { heading() },
+                )
+            }
         }
         if (trailingIcon != null && onTrailingClick != null) {
             Box(
@@ -101,7 +109,7 @@ fun BeaconChip(
         else -> MaterialTheme.colorScheme.surface
     }
     val content = when {
-        selected && accent != null -> Color.Black
+        selected && accent != null -> MaterialTheme.colorScheme.onPrimary
         selected -> MaterialTheme.colorScheme.background
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }

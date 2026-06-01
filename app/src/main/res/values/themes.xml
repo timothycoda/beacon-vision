@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Base launch theme. The in-app UI uses the Compose BeaconTheme; this
-         framework theme only needs to provide a valid windowed app theme. -->
-    <style name="Theme.Beacon" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowBackground">@color/beacon_window_background</item>
-    </style>
-</resources>

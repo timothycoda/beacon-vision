@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -12,22 +13,26 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.beacon.app.R
 import com.beacon.app.ui.components.BigActionButton
-import com.beacon.app.ui.theme.BeaconBackground
+import com.beacon.app.ui.components.BrandWelcomeLogo
+import com.beacon.app.ui.components.rememberBrandDrawableId
 import com.beacon.app.ui.theme.BeaconDimens
-import com.beacon.app.ui.theme.BeaconLime
-import com.beacon.app.ui.theme.BeaconLimeText
-import com.beacon.app.ui.theme.BeaconOnDarkMuted
 
 @Composable
 fun WelcomeScreen(onGetStarted: () -> Unit) {
+    val safety = stringResource(R.string.welcome_safety)
+    val safetyCd = stringResource(R.string.welcome_safety_cd)
+    val hasLogo = rememberBrandDrawableId("brand_welcome_logo") != null
+
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = BeaconBackground,
+        color = MaterialTheme.colorScheme.background,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -37,27 +42,34 @@ fun WelcomeScreen(onGetStarted: () -> Unit) {
                     .padding(horizontal = BeaconDimens.screenHorizontalPadding),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(
-                    text = "Beacon",
-                    style = MaterialTheme.typography.displayLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
-                )
+                if (hasLogo) {
+                    BrandWelcomeLogo(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 48.dp),
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.welcome_title),
+                        style = MaterialTheme.typography.displayLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                }
                 Spacer(Modifier.padding(top = 48.dp))
                 BigActionButton(
                     label = "Get started",
                     onClick = onGetStarted,
                     modifier = Modifier.fillMaxWidth(),
-                    containerColor = BeaconLime,
-                    contentColor = BeaconLimeText,
-                    contentDescription = "Get started. Learn what Beacon can do.",
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    contentDescription = stringResource(R.string.welcome_get_started_cd),
                 )
             }
 
             Text(
-                text = "Beacon is an assistive companion. It can be wrong. Always use your cane, " +
-                    "guide dog, caregiver support, and your own judgment.",
+                text = safety,
                 style = MaterialTheme.typography.bodySmall,
-                color = BeaconOnDarkMuted,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -66,10 +78,7 @@ fun WelcomeScreen(onGetStarted: () -> Unit) {
                         horizontal = BeaconDimens.screenHorizontalPadding,
                         vertical = 28.dp,
                     )
-                    .semantics {
-                        contentDescription =
-                            "Safety note: Beacon is an assistive companion and may be wrong."
-                    },
+                    .semantics { contentDescription = safetyCd },
             )
         }
     }

@@ -53,7 +53,7 @@ fun WhatIsAheadScreen(
     }
 
     BeaconScreen {
-        BeaconTopBar(title = "Beacon")
+        BeaconTopBar()
         BeaconHeading(
             title = "What is ahead?",
             subtitle = "Capture a photo and Beacon will describe it.",
@@ -68,8 +68,8 @@ fun WhatIsAheadScreen(
         BentoCard(
             title = if (state.isBusy) "Working…" else "Look ahead",
             onClick = viewModel::lookAhead,
-            containerColor = BeaconLime,
-            contentColor = BeaconLimeText,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             leadingIcon = Icons.Filled.Visibility,
             minHeight = BeaconDimens.bentoLargeMinHeight,
             showArrow = !state.isBusy,

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#00000000</color>
+    <color name="brand_window_background">#050816</color>
+    <color name="brand_splash_background">#050816</color>
+    <color name="brand_primary_accent">#38BDF8</color>
+    <color name="brand_primary">#0B4DBA</color>
+    <color name="brand_deep">#0A3D91</color>
+    <color name="brand_surface">#111827</color>
+    <color name="brand_surface_alt">#1A2235</color>
+    <color name="brand_outline">#2A3655</color>
+    <color name="brand_connected_chip_bg">#10223D</color>
+</resources>

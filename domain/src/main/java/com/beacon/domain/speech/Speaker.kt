@@ -19,4 +19,7 @@ interface Speaker {
 
     /** Stop any current and queued speech. */
     fun stop()
+
+    /** Preloads on-device Hausa MMS when the voice pack is installed (no-op otherwise). */
+    fun prepareHausaVoice()
 }

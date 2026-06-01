@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Beacon</string>
     <string name="walking_notification_channel">Walking guidance</string>
-    <string name="walking_notification_channel_desc">Shows when Beacon is giving periodic guidance while you walk.</string>
-    <string name="walking_notification_title">Beacon walking mode</string>
     <string name="walking_notification_running">Describing what is ahead periodically.</string>
     <string name="walking_notification_stopped">Walking mode stopped.</string>
     <string name="walking_notification_stop">Stop</string>
 
     <string name="assistant_notification_channel">Hands-free assistant</string>
-    <string name="assistant_notification_channel_desc">Lets you trigger Beacon from your glasses with the screen locked.</string>
-    <string name="assistant_notification_title">Beacon hands-free is on</string>
     <string name="assistant_notification_text">Long press your glasses, then say a command.</string>
     <string name="assistant_notification_stop">Turn off</string>
 
     <string name="emergency_auto_send_title">Hands-free auto-send</string>
     <string name="emergency_auto_send_enabled">Voice emergency will send SMS automatically.</string>
-    <string name="emergency_auto_send_prompt">Allow Beacon to send SMS so saying emergency on your glasses sends help without tapping Send.</string>
     <string name="emergency_auto_send_allow">Allow send SMS</string>
+
+    <string name="handoff_opening_whatsapp">Opening WhatsApp. Point your phone camera forward so your helper can see what is ahead.</string>
+    <string name="handoff_opening_message">Opening WhatsApp to message your helper.</string>
+    <string name="handoff_success_call">WhatsApp is open. Ask your helper to start a video call when ready.</string>
 </resources>

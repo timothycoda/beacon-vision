@@ -1,5 +1,6 @@
 package com.beacon.app.ui.settings
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Emergency
@@ -32,7 +33,7 @@ fun SettingsScreen(
     onHistory: () -> Unit,
 ) {
     BeaconScreen {
-        BeaconTopBar(title = "Beacon")
+        BeaconTopBar()
         BeaconHeading(
             title = "Settings",
             subtitle = "Glasses, voice, emergency, and your recent activity.",
@@ -41,8 +42,8 @@ fun SettingsScreen(
         BentoCard(
             title = "Glasses status",
             onClick = onGlassesStatus,
-            containerColor = BeaconLime,
-            contentColor = BeaconLimeText,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             leadingIcon = Icons.Filled.Visibility,
             minHeight = BeaconDimens.bentoWideMinHeight,
             contentDescription = "Connection, battery, and device info.",
@@ -59,8 +60,8 @@ fun SettingsScreen(
         BentoCard(
             title = "Offline AI packs",
             onClick = onModelPacks,
-            containerColor = BeaconLime,
-            contentColor = BeaconLimeText,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             leadingIcon = Icons.Filled.CloudDownload,
             minHeight = BeaconDimens.bentoWideMinHeight,
             contentDescription = "Download Gemma and other optional on-device packs.",

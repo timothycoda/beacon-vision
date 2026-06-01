@@ -15,5 +15,8 @@ enum class GuidanceInputMode {
 interface DevicePreferences {
     fun guidanceInputMode(): Flow<GuidanceInputMode>
 
+    /** Persists the user's chosen default (onboarding); not toggled when leaving phone camera. */
+    suspend fun setGuidanceInputMode(mode: GuidanceInputMode)
+
     suspend fun setPhoneOnlyMode(enabled: Boolean)
 }

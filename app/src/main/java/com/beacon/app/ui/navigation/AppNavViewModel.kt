@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.beacon.data.glasses.GlassesPreferences
 import com.beacon.data.prefs.AppPreferences
+import com.beacon.domain.device.GuidanceInputMode
+import com.beacon.domain.device.ObserveGuidanceInputModeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,13 +19,25 @@ import javax.inject.Inject
 class AppNavViewModel @Inject constructor(
     private val appPreferences: AppPreferences,
     glassesPreferences: GlassesPreferences,
+    observeGuidanceMode: ObserveGuidanceInputModeUseCase,
 ) : ViewModel() {
 
     fun completeFeatureTour() {
         viewModelScope.launch { appPreferences.setFeatureTourComplete() }
     }
 
+    fun markSetupComplete() {
+        viewModelScope.launch { appPreferences.setOnboardingComplete() }
+    }
+
     /** True when glasses were already paired before (returning user finishing the new tour). */
+    val guidanceMode: StateFlow<GuidanceInputMode> = observeGuidanceMode()
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            GuidanceInputMode.Glasses,
+        )
+
     val alreadySetUp: StateFlow<Boolean> = combine(
         appPreferences.onboardingComplete,
         glassesPreferences.lastAddress,
@@ -38,13 +52,11 @@ class AppNavViewModel @Inject constructor(
     val startDestination: StateFlow<String?> = combine(
         appPreferences.featureTourComplete,
         appPreferences.onboardingComplete,
-        glassesPreferences.lastAddress,
-    ) { tourComplete, onboardingComplete, lastAddress ->
+    ) { tourComplete, onboardingComplete ->
         when {
             !tourComplete -> BeaconDestinations.WELCOME
-            !onboardingComplete -> BeaconDestinations.PAIRING
-            !lastAddress.isNullOrBlank() -> BeaconDestinations.HOME
-            else -> BeaconDestinations.PAIRING
+            !onboardingComplete -> BeaconDestinations.PERMISSIONS
+            else -> BeaconDestinations.HOME
         }
     }.stateIn(
         viewModelScope,

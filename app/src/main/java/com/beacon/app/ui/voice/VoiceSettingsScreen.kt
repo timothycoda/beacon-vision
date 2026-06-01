@@ -41,7 +41,7 @@ fun VoiceSettingsScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     BeaconScreen {
-        BeaconTopBar(title = "Beacon")
+        BeaconTopBar()
         BeaconHeading(
             title = "Voice",
             subtitle = "Lock in the voice you like. Beacon saves your choice on this phone.",
@@ -58,8 +58,8 @@ fun VoiceSettingsScreen(
         BentoCard(
             title = "Keep voice I use now",
             onClick = viewModel::savePhonesCurrentVoice,
-            containerColor = BeaconLime,
-            contentColor = BeaconLimeText,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             minHeight = BeaconDimens.bentoLargeMinHeight,
             contentDescription = "Save your phone's current text-to-speech voice for Beacon.",
         )
@@ -115,8 +115,8 @@ fun VoiceSettingsScreen(
         BentoCard(
             title = "Test voice",
             onClick = viewModel::testVoice,
-            containerColor = BeaconLime,
-            contentColor = BeaconLimeText,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             minHeight = BeaconDimens.bentoWideMinHeight,
             contentDescription = "Play a short sample with the selected voice.",
         )

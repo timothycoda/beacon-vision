@@ -1,6 +1,8 @@
 package com.beacon.app.ui.permissions
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Spacer
@@ -15,7 +17,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.beacon.app.R
 import com.beacon.app.ui.components.BeaconHeading
 import com.beacon.app.ui.components.BeaconScreen
 import com.beacon.app.ui.components.BeaconTopBar
@@ -24,66 +31,102 @@ import com.beacon.app.ui.components.SecondaryActionButton
 import com.beacon.core.permission.BeaconPermissions
 
 @Composable
-fun PermissionEducationScreen(onPermissionsReady: () -> Unit) {
+fun PermissionEducationScreen(
+    onPermissionsReady: () -> Unit,
+    viewModel: PermissionEducationViewModel = hiltViewModel(),
+) {
+    val phoneSetup by viewModel.phoneSetup.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var denied by remember { mutableStateOf(false) }
 
-    val permissionsToRequest = remember {
-        buildList {
-            addAll(BeaconPermissions.blePermissions())
-            BeaconPermissions.notificationPermission()?.let { add(it) }
-        }.toTypedArray()
+    val permissionsToRequest = remember(phoneSetup) {
+        if (phoneSetup) {
+            buildList {
+                add(Manifest.permission.CAMERA)
+                BeaconPermissions.notificationPermission()?.let { add(it) }
+            }.toTypedArray()
+        } else {
+            buildList {
+                addAll(BeaconPermissions.blePermissions())
+                BeaconPermissions.notificationPermission()?.let { add(it) }
+            }.toTypedArray()
+        }
     }
 
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { result ->
-        // Only the Bluetooth permissions are required to continue; notifications
-        // are nice-to-have. Degrade gracefully if Bluetooth is denied.
-        val bleGranted = BeaconPermissions.blePermissions().all { result[it] == true }
-        if (bleGranted || hasBle(context)) {
-            onPermissionsReady()
+        if (phoneSetup) {
+            val cameraGranted = result[Manifest.permission.CAMERA] == true ||
+                hasCamera(context)
+            if (cameraGranted) {
+                onPermissionsReady()
+            } else {
+                denied = true
+            }
         } else {
-            denied = true
+            val bleGranted = BeaconPermissions.blePermissions().all { result[it] == true }
+            if (bleGranted || hasBle(context)) {
+                onPermissionsReady()
+            } else {
+                denied = true
+            }
         }
     }
 
+    val readyNow = if (phoneSetup) hasCamera(context) else hasBle(context)
+
     BeaconScreen {
-        BeaconTopBar(title = "Beacon")
-        BeaconHeading(title = "A few permissions")
+        BeaconTopBar()
+        BeaconHeading(title = stringResource(R.string.permissions_heading))
         Text(
-            text = "Beacon needs your permission for a few things. We only ask when a feature needs it.",
+            text = if (phoneSetup) {
+                stringResource(R.string.permissions_intro_phone)
+            } else {
+                stringResource(R.string.permissions_intro)
+            },
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onBackground,
         )
+        if (phoneSetup) {
+            PermissionRow(
+                title = stringResource(R.string.permissions_camera_title),
+                reason = stringResource(R.string.permissions_camera_reason),
+            )
+        } else {
+            PermissionRow(
+                title = stringResource(R.string.permissions_bluetooth_title),
+                reason = stringResource(R.string.permissions_bluetooth_reason),
+            )
+        }
         PermissionRow(
-            title = "Bluetooth",
-            reason = "To find and connect to your smart glasses.",
-        )
-        PermissionRow(
-            title = "Notifications",
-            reason = "To keep guidance running and show glasses status.",
+            title = stringResource(R.string.permissions_notifications_title),
+            reason = stringResource(R.string.permissions_notifications_reason),
         )
         if (denied) {
             Text(
-                text = "Bluetooth permission was not granted. Beacon cannot connect to your glasses without it. You can try again or enable it in Settings.",
+                text = if (phoneSetup) {
+                    stringResource(R.string.permissions_camera_denied)
+                } else {
+                    stringResource(R.string.permissions_bluetooth_denied)
+                },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.error,
             )
         }
         Spacer(Modifier.height(8.dp))
         BigActionButton(
-            label = if (denied) "Try again" else "Allow permissions",
+            label = if (denied) stringResource(R.string.permissions_try_again) else stringResource(R.string.permissions_allow),
             onClick = {
-                if (hasBle(context)) onPermissionsReady() else launcher.launch(permissionsToRequest)
+                if (readyNow) onPermissionsReady() else launcher.launch(permissionsToRequest)
             },
             modifier = Modifier.fillMaxWidth(),
-            contentDescription = "Allow permissions for Bluetooth and notifications.",
+            contentDescription = stringResource(R.string.permissions_allow_cd),
         )
         SecondaryActionButton(
-            label = "Skip for now",
+            label = stringResource(R.string.permissions_skip),
             onClick = onPermissionsReady,
-            contentDescription = "Skip permissions for now. Some features will be limited.",
+            contentDescription = stringResource(R.string.permissions_skip_cd),
         )
     }
 }
@@ -103,3 +146,7 @@ private fun PermissionRow(title: String, reason: String) {
 }
 
 private fun hasBle(context: Context): Boolean = BeaconPermissions.hasBlePermissions(context)
+
+private fun hasCamera(context: Context): Boolean =
+    ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
+        PackageManager.PERMISSION_GRANTED

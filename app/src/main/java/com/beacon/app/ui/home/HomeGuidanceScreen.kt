@@ -1,5 +1,6 @@
 package com.beacon.app.ui.home
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -65,7 +66,6 @@ fun HomeGuidanceScreen(
 
     BeaconScreen {
         BeaconTopBar(
-            title = "Beacon",
             trailingIcon = Icons.Filled.Settings,
             trailingContentDescription = "Settings",
             onTrailingClick = onOpenSettings,
@@ -81,8 +81,8 @@ fun HomeGuidanceScreen(
         BentoCard(
             title = "Speak a command",
             onClick = onVoiceCommand,
-            containerColor = BeaconLime,
-            contentColor = BeaconLimeText,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             leadingIcon = Icons.Filled.Mic,
             minHeight = BeaconDimens.bentoLargeMinHeight,
             contentDescription = "Speak a command. Use your voice to control Beacon hands-free.",
@@ -163,7 +163,7 @@ private fun ConnectionChips(state: HomeUiState) {
         BeaconChip(
             label = connectionText,
             selected = connected,
-            accent = if (connected) BeaconLime else null,
+            accent = if (connected) MaterialTheme.colorScheme.primary else null,
         )
         state.battery?.let {
             BeaconChip(label = "Battery ${it.levelPercent}%", selected = false)
@@ -180,7 +180,7 @@ private fun PhoneModeChip(phoneMode: Boolean, onOpenPhone: () -> Unit) {
         BeaconChip(
             label = if (phoneMode) "Phone mode on" else "Use phone camera",
             selected = phoneMode,
-            accent = if (phoneMode) BeaconLime else null,
+            accent = if (phoneMode) MaterialTheme.colorScheme.primary else null,
             onClick = onOpenPhone,
         )
     }
@@ -192,14 +192,14 @@ private fun ActiveModelChips(state: HomeUiState) {
         BeaconChip(
             label = "Using: ${state.activeIntelligenceName}",
             selected = state.activeIntelligenceName != "Built-in vision",
-            accent = if (state.activeIntelligenceName != "Built-in vision") BeaconLime else null,
+            accent = if (state.activeIntelligenceName != "Built-in vision") MaterialTheme.colorScheme.primary else null,
         )
         if (state.guidanceLanguage == GuidanceLanguage.Hausa) {
             val hausaLabel = state.activeVoiceName?.let { "Hausa · $it" } ?: "Hausa guidance"
-            BeaconChip(label = hausaLabel, selected = true, accent = BeaconLime)
+            BeaconChip(label = hausaLabel, selected = true, accent = MaterialTheme.colorScheme.primary)
         } else {
             state.activeVoiceName?.let { voice ->
-                BeaconChip(label = "Voice: $voice", selected = true, accent = BeaconLime)
+                BeaconChip(label = "Voice: $voice", selected = true, accent = MaterialTheme.colorScheme.primary)
             }
         }
     }

@@ -22,6 +22,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.beacon.app.R
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -47,6 +49,7 @@ import com.beacon.domain.glasses.model.GlassesDevice
 @Composable
 fun GlassesPairingScreen(
     onConnected: () -> Unit,
+    onSkip: () -> Unit = {},
     viewModel: PairingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -88,7 +91,7 @@ fun GlassesPairingScreen(
     val hasLastPaired = state.lastPaired != null
 
     BeaconScreen {
-        BeaconTopBar(title = "Beacon")
+        BeaconTopBar()
         BeaconHeading(
             title = if (hasLastPaired) "Your glasses" else "Connect your glasses",
             subtitle = if (hasLastPaired) {
@@ -106,8 +109,7 @@ fun GlassesPairingScreen(
 
         if (permissionDenied) {
             StatusText(
-                text = "Beacon needs the Bluetooth (Nearby devices) permission to find " +
-                    "your glasses. Please allow it to continue.",
+                text = stringResource(R.string.pairing_bluetooth_rationale),
                 isError = true,
             )
             BigActionButton(
@@ -167,6 +169,13 @@ fun GlassesPairingScreen(
                 DeviceCard(device = device, onClick = { viewModel.connect(device) })
             }
         }
+
+        SecondaryActionButton(
+            label = "Continue without glasses",
+            onClick = onSkip,
+            modifier = Modifier.fillMaxWidth(),
+            contentDescription = "Continue to home without connecting glasses",
+        )
     }
 }
 

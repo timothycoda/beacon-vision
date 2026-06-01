@@ -55,6 +55,18 @@ class HausaMmsTtsEngine @Inject constructor(
 
     fun isAvailable(): Boolean = paths.isHausaVoiceInstalled()
 
+    /** Loads sherpa + ONNX on a background thread so the first spoken cue is not silent. */
+    fun warmUp() {
+        if (!isAvailable()) return
+        scope.launch {
+            runCatching {
+                if (!SherpaNativeLoader.ensureLoaded()) return@launch
+                packInstaller.ensurePackLayout()
+                ensureEngine()
+            }.onFailure { BeaconLog.e(TAG, "Hausa MMS warmUp failed", it) }
+        }
+    }
+
     /**
      * @return true if audio was generated and played; false to fall back to system TTS.
      */
@@ -84,7 +96,9 @@ class HausaMmsTtsEngine @Inject constructor(
                 BeaconLog.e(TAG, "Hausa MMS speak failed", e)
             } finally {
                 _isSpeaking.value = false
-                onComplete(ok)
+                withContext(dispatchers.main) {
+                    onComplete(ok)
+                }
             }
         }
     }

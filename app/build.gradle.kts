@@ -26,6 +26,22 @@ android {
         }
     }
 
+    flavorDimensions += "brand"
+    productFlavors {
+        create("beacon") {
+            dimension = "brand"
+            applicationId = "com.beacon.app"
+            buildConfigField("String", "BRAND", "\"beacon\"")
+            resValue("string", "app_name", "Beacon")
+        }
+        create("elenii") {
+            dimension = "brand"
+            applicationId = "com.elenii.app"
+            buildConfigField("String", "BRAND", "\"elenii\"")
+            resValue("string", "app_name", "Elenii")
+        }
+    }
+
     buildTypes {
         debug {
             isMinifyEnabled = false
