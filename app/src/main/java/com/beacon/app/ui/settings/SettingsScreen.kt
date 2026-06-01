@@ -2,13 +2,16 @@ package com.beacon.app.ui.settings
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Emergency
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.runtime.Composable
+import com.beacon.app.ui.accessibility.ScreenVoiceIntro
 import com.beacon.app.ui.components.BeaconHeading
+import com.beacon.domain.accessibility.AccessibilityScreenIds
 import com.beacon.app.ui.components.BeaconScreen
 import com.beacon.app.ui.components.BeaconTopBar
 import com.beacon.app.ui.components.BentoCard
@@ -27,11 +30,14 @@ fun SettingsScreen(
     onBack: () -> Unit,
     onGlassesStatus: () -> Unit,
     onVoiceSettings: () -> Unit,
+    onAccessibility: () -> Unit,
     onModelPacks: () -> Unit,
     onEmergency: () -> Unit,
     onTrustedHelpers: () -> Unit,
     onHistory: () -> Unit,
 ) {
+    ScreenVoiceIntro(AccessibilityScreenIds.SETTINGS)
+
     BeaconScreen {
         BeaconTopBar()
         BeaconHeading(
@@ -56,6 +62,15 @@ fun SettingsScreen(
             leadingIcon = Icons.Filled.Mic,
             minHeight = BeaconDimens.bentoWideMinHeight,
             contentDescription = "Text-to-speech voice and speed.",
+        )
+        BentoCard(
+            title = "Accessibility",
+            onClick = onAccessibility,
+            containerColor = BeaconWhiteCard,
+            contentColor = BeaconWhiteCardText,
+            leadingIcon = Icons.Filled.Accessibility,
+            minHeight = BeaconDimens.bentoWideMinHeight,
+            contentDescription = "Voice Guide, TalkBack-friendly navigation, and haptics.",
         )
         BentoCard(
             title = "Offline AI packs",

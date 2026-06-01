@@ -46,7 +46,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.beacon.app.ui.accessibility.ScreenVoiceIntro
 import com.beacon.app.ui.components.BeaconChip
+import com.beacon.domain.accessibility.AccessibilityScreenIds
 import com.beacon.app.ui.components.BentoCard
 import com.beacon.app.ui.components.SecondaryActionButton
 import com.beacon.app.ui.theme.BeaconDimens
@@ -59,6 +61,8 @@ fun PhoneGuidanceScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var hasCameraPermission by remember { mutableStateOf(false) }
+
+    ScreenVoiceIntro(AccessibilityScreenIds.PHONE_GUIDANCE)
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),

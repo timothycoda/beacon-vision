@@ -12,7 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.beacon.app.ui.accessibility.ScreenVoiceIntro
 import com.beacon.app.ui.components.BeaconHeading
+import com.beacon.domain.accessibility.AccessibilityScreenIds
 import com.beacon.app.ui.components.BeaconScreen
 import com.beacon.app.ui.components.BeaconTopBar
 import com.beacon.app.ui.components.BentoCard
@@ -32,6 +34,8 @@ fun TrustedHelpersScreen(
     viewModel: TrustedHelpersViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    ScreenVoiceIntro(AccessibilityScreenIds.TRUSTED_HELPERS)
 
     BeaconScreen {
         BeaconTopBar()

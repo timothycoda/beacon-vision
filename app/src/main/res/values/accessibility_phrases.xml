@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="a11y_phrase_home_intro">Home screen. You can speak a command, scan what is ahead, read text, start walking mode, call a helper, or send an emergency alert.</string>
+    <string name="a11y_phrase_phone_mode_intro">Phone mode is active. Point your phone forward. I will describe nearby objects and warn you about obstacles.</string>
+    <string name="a11y_phrase_document_reader_intro">Document reader. Hold the document steady. I will read text when it is clear.</string>
+    <string name="a11y_phrase_walking_mode_intro">Walking mode. I will give short guidance and interrupt for danger.</string>
+    <string name="a11y_phrase_emergency_intro">Emergency screen. You can call, send SMS, or share your location and latest image with a trusted contact.</string>
+    <string name="a11y_phrase_trusted_helpers_intro">Trusted helpers. Add people who can assist you through WhatsApp or Live Help.</string>
+    <string name="a11y_phrase_settings_intro">Settings. Change language, voice, accessibility, emergency contacts, camera mode, and AI model.</string>
+    <string name="a11y_phrase_live_help_intro">Live Help. You can invite a trusted helper to see your phone camera and speak with you.</string>
+    <string name="a11y_phrase_speak_command_description">Speak a command. Use your voice to control the app hands-free.</string>
+    <string name="a11y_phrase_what_is_ahead_description">What is ahead. Describe what is in front of you.</string>
+    <string name="a11y_phrase_read_this_description">Read this. Read text, signs, or documents in view.</string>
+    <string name="a11y_phrase_walking_mode_description">Walking mode. Continuous guidance while you walk.</string>
+    <string name="a11y_phrase_call_helper_description">Call or message a trusted helper on WhatsApp.</string>
+    <string name="a11y_phrase_start_live_help_description">Start Live Help. Share a link so a trusted helper can see your camera and talk with you.</string>
+    <string name="a11y_phrase_emergency_description">Emergency. Contact a trusted person quickly. Use with care.</string>
+    <string name="a11y_phrase_camera_permission_missing">Camera permission is needed for this feature.</string>
+    <string name="a11y_phrase_microphone_permission_missing">Microphone permission is needed for voice commands and Live Help.</string>
+    <string name="a11y_phrase_location_permission_missing">Location permission is needed to share your position in an emergency.</string>
+    <string name="a11y_phrase_low_light_warning">Lighting is low. Move to a brighter area if possible.</string>
+    <string name="a11y_phrase_blurry_image_warning">The image is blurry. Hold the phone steady and try again.</string>
+    <string name="a11y_phrase_glasses_disconnected">Your glasses are not connected.</string>
+    <string name="a11y_phrase_phone_mode_resumed">Phone guidance resumed.</string>
+    <string name="a11y_phrase_helper_call_starting">Opening WhatsApp to reach your helper.</string>
+    <string name="a11y_phrase_live_help_waiting">Waiting for your helper to join Live Help.</string>
+    <string name="a11y_phrase_live_help_connected">Your helper joined Live Help.</string>
+    <string name="a11y_phrase_live_help_failed">Live Help failed. You can use WhatsApp instead.</string>
+    <string name="a11y_phrase_live_help_ended">Live Help ended.</string>
+    <string name="a11y_phrase_emergency_countdown">Emergency alert starting. Double tap cancel to stop.</string>
+    <string name="a11y_phrase_emergency_cancelled">Emergency alert cancelled.</string>
+    <string name="a11y_phrase_voice_guide_enabled">Voice Guide turned on.</string>
+    <string name="a11y_phrase_voice_guide_disabled">Voice Guide turned off.</string>
+</resources>

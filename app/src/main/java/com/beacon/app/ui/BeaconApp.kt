@@ -39,6 +39,8 @@ import com.beacon.app.ui.walking.WalkingModeScreen
 import com.beacon.app.ui.onboarding.OnboardingScreen
 import com.beacon.app.ui.phone.PhoneGuidanceScreen
 import com.beacon.app.ui.helper.TrustedHelpersScreen
+import com.beacon.app.ui.accessibility.AccessibilitySettingsScreen
+import com.beacon.app.ui.accessibility.ProvideAccessibilityVoiceGuide
 import com.beacon.app.ui.welcome.WelcomeScreen
 import com.beacon.domain.device.GuidanceInputMode
 import com.beacon.domain.glasses.model.ConnectionState
@@ -83,6 +85,7 @@ fun BeaconApp(
         onStartRouteHandled()
     }
 
+    ProvideAccessibilityVoiceGuide {
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -157,6 +160,7 @@ fun BeaconApp(
                 onBack = { navController.popBackStack() },
                 onGlassesStatus = { navController.navigate(BeaconDestinations.DEVICE_STATUS) },
                 onVoiceSettings = { navController.navigate(BeaconDestinations.VOICE_SETTINGS) },
+                onAccessibility = { navController.navigate(BeaconDestinations.ACCESSIBILITY_SETTINGS) },
                 onModelPacks = { navController.navigate(BeaconDestinations.MODEL_PACKS) },
                 onEmergency = { navController.navigate(BeaconDestinations.EMERGENCY) },
                 onTrustedHelpers = { navController.navigate(BeaconDestinations.TRUSTED_HELPERS) },
@@ -226,6 +230,10 @@ fun BeaconApp(
                 onBack = { navController.popBackStack() },
             )
         }
+        composable(BeaconDestinations.ACCESSIBILITY_SETTINGS) {
+            AccessibilitySettingsScreen(onBack = { navController.popBackStack() })
+        }
+    }
     }
 }
 

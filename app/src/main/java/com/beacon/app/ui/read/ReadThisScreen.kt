@@ -31,7 +31,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.beacon.app.ui.accessibility.ScreenVoiceIntro
 import com.beacon.app.ui.components.BeaconHeading
+import com.beacon.domain.accessibility.AccessibilityScreenIds
 import com.beacon.app.ui.components.BeaconScreen
 import com.beacon.app.ui.components.BeaconTopBar
 import com.beacon.app.ui.components.BentoCard
@@ -52,6 +54,8 @@ fun ReadThisScreen(
     LaunchedEffect(Unit) {
         if (autoStart) viewModel.readText()
     }
+
+    ScreenVoiceIntro(AccessibilityScreenIds.READ_THIS)
 
     BeaconScreen {
         BeaconTopBar()

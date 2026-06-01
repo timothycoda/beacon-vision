@@ -14,7 +14,9 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.beacon.app.ui.accessibility.ScreenVoiceIntro
 import com.beacon.app.ui.components.BeaconHeading
+import com.beacon.domain.accessibility.AccessibilityScreenIds
 import com.beacon.app.ui.components.BeaconScreen
 import com.beacon.app.ui.components.BeaconTopBar
 import com.beacon.app.ui.components.BentoCard
@@ -32,6 +34,8 @@ fun WalkingModeScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) { viewModel.refreshRunningState() }
+
+    ScreenVoiceIntro(AccessibilityScreenIds.WALKING_MODE)
 
     BeaconScreen {
         BeaconTopBar()

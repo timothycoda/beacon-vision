@@ -29,7 +29,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.beacon.app.ui.components.BeaconChip
 import com.beacon.app.ui.components.BeaconScreen
 import com.beacon.app.ui.components.BeaconTopBar
+import com.beacon.app.ui.accessibility.GuidedBentoCard
+import com.beacon.app.ui.accessibility.ScreenVoiceIntro
 import com.beacon.app.ui.components.BentoCard
+import com.beacon.domain.accessibility.AccessibilityPhraseKey
+import com.beacon.domain.accessibility.AccessibilityScreenIds
+import com.beacon.domain.accessibility.DangerLevel
+import com.beacon.domain.accessibility.SpeakableAction
 import com.beacon.app.ui.theme.BeaconCardDark
 import com.beacon.app.ui.theme.BeaconDanger
 import com.beacon.app.ui.theme.BeaconDangerText
@@ -64,6 +70,8 @@ fun HomeGuidanceScreen(
         scope.launch { snackbarHostState.showSnackbar("$feature is coming in a later update.") }
     }
 
+    ScreenVoiceIntro(AccessibilityScreenIds.HOME)
+
     BeaconScreen {
         BeaconTopBar(
             trailingIcon = Icons.Filled.Settings,
@@ -78,60 +86,71 @@ fun HomeGuidanceScreen(
             onOpenPhone = { viewModel.enterPhoneMode(onPhoneGuidance) },
         )
 
-        BentoCard(
-            title = "Speak a command",
+        GuidedBentoCard(
+            action = SpeakableAction(
+                label = "Speak a command",
+                phraseKey = AccessibilityPhraseKey.SPEAK_COMMAND_DESCRIPTION,
+            ),
             onClick = onVoiceCommand,
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
             leadingIcon = Icons.Filled.Mic,
             minHeight = BeaconDimens.bentoLargeMinHeight,
-            contentDescription = "Speak a command. Use your voice to control Beacon hands-free.",
         )
 
-        BentoCard(
-            title = "What is ahead?",
+        GuidedBentoCard(
+            action = SpeakableAction(
+                label = "What is ahead?",
+                phraseKey = AccessibilityPhraseKey.WHAT_IS_AHEAD_DESCRIPTION,
+            ),
             onClick = onWhatIsAhead,
             containerColor = BeaconWhiteCard,
             contentColor = BeaconWhiteCardText,
             leadingIcon = Icons.Filled.Visibility,
             minHeight = BeaconDimens.bentoLargeMinHeight,
-            contentDescription = "What is ahead. Describe what is in front of you.",
         )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(BeaconDimens.bentoGap),
         ) {
-            BentoCard(
-                title = "Read this",
+            GuidedBentoCard(
+                action = SpeakableAction(
+                    label = "Read this",
+                    phraseKey = AccessibilityPhraseKey.READ_THIS_DESCRIPTION,
+                ),
                 onClick = onReadThis,
                 containerColor = BeaconYellow,
                 contentColor = BeaconYellowText,
                 leadingIcon = Icons.Filled.MenuBook,
                 minHeight = BeaconDimens.bentoSmallMinHeight,
                 modifier = Modifier.weight(1f),
-                contentDescription = "Read this. Read text, signs, or documents.",
             )
-            BentoCard(
-                title = "Walking mode",
+            GuidedBentoCard(
+                action = SpeakableAction(
+                    label = "Walking mode",
+                    phraseKey = AccessibilityPhraseKey.WALKING_MODE_DESCRIPTION,
+                ),
                 onClick = onWalkingMode,
                 containerColor = BeaconWhiteCard,
                 contentColor = BeaconWhiteCardText,
                 leadingIcon = Icons.Filled.DirectionsWalk,
                 minHeight = BeaconDimens.bentoSmallMinHeight,
                 modifier = Modifier.weight(1f),
-                contentDescription = "Walking mode. Continuous guidance while you walk.",
             )
         }
 
-        BentoCard(
-            title = "Emergency",
+        GuidedBentoCard(
+            action = SpeakableAction(
+                label = "Emergency",
+                phraseKey = AccessibilityPhraseKey.EMERGENCY_DESCRIPTION,
+                dangerLevel = DangerLevel.Emergency,
+            ),
             onClick = onEmergency,
             containerColor = BeaconDanger,
             contentColor = BeaconDangerText,
             leadingIcon = Icons.Filled.Emergency,
             minHeight = BeaconDimens.bentoWideMinHeight,
-            contentDescription = "Emergency. Contact a trusted person quickly.",
         )
 
         BentoCard(

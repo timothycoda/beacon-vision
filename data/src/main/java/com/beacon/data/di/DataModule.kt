@@ -1,6 +1,12 @@
 package com.beacon.data.di
 
+import com.beacon.data.accessibility.AccessibilityPreferencesImpl
+import com.beacon.data.accessibility.AccessibilityVoiceGuideImpl
+import com.beacon.data.accessibility.ResourceAccessibilityPhraseProvider
 import com.beacon.data.device.DevicePreferencesImpl
+import com.beacon.domain.accessibility.AccessibilityPhraseProvider
+import com.beacon.domain.accessibility.AccessibilitySettingsRepository
+import com.beacon.domain.accessibility.AccessibilityVoiceGuide
 import com.beacon.data.guidance.GuidanceLanguageRepositoryImpl
 import com.beacon.data.emergency.EmergencyRepositoryImpl
 import com.beacon.data.helper.TrustedHelperRepositoryImpl
@@ -103,4 +109,22 @@ abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindObjectDetector(impl: MlKitObjectDetector): ObjectDetector
+
+    @Binds
+    @Singleton
+    abstract fun bindAccessibilitySettingsRepository(
+        impl: AccessibilityPreferencesImpl,
+    ): AccessibilitySettingsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAccessibilityPhraseProvider(
+        impl: ResourceAccessibilityPhraseProvider,
+    ): AccessibilityPhraseProvider
+
+    @Binds
+    @Singleton
+    abstract fun bindAccessibilityVoiceGuide(
+        impl: AccessibilityVoiceGuideImpl,
+    ): AccessibilityVoiceGuide
 }
