@@ -46,8 +46,9 @@ android {
         val liveHelpProductionHost = "elenii.zeustek.com.ng"
         debug {
             isMinifyEnabled = false
+            // Default true so stage/demo APKs use elenii.zeustek.com.ng; set liveHelp.useProduction=false for LAN dev.
             val useProduction =
-                (project.findProperty("liveHelp.useProduction") as String?) == "true"
+                (project.findProperty("liveHelp.useProduction") as String?) != "false"
             if (useProduction) {
                 buildConfigField("String", "LIVE_HELP_HTTP", "\"https://$liveHelpProductionHost\"")
                 buildConfigField("String", "LIVE_HELP_WS", "\"wss://$liveHelpProductionHost/ws\"")

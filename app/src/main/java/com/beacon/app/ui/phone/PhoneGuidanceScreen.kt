@@ -11,13 +11,24 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.activity.compose.BackHandler
@@ -33,11 +44,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.beacon.app.R
-import com.beacon.app.ui.theme.bentoWhiteCardColor
-import com.beacon.app.ui.theme.bentoWhiteCardOnColor
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -49,9 +59,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.beacon.app.ui.accessibility.ScreenVoiceIntro
 import com.beacon.app.ui.components.BeaconChip
 import com.beacon.domain.accessibility.AccessibilityScreenIds
-import com.beacon.app.ui.components.BentoCard
 import com.beacon.app.ui.components.SecondaryActionButton
-import com.beacon.app.ui.theme.BeaconDimens
 import java.util.concurrent.Executors
 
 @Composable
@@ -164,32 +172,10 @@ fun PhoneGuidanceScreen(
                     modifier = Modifier.padding(bottom = 6.dp),
                 )
             }
-            Text(
-                text = stringResource(R.string.phone_whatsapp_pause),
-                color = Color.White.copy(alpha = 0.72f),
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
-            PhoneModeHelperButton(
-                title = "Call helper on WhatsApp",
-                onClick = viewModel::callHelperOnWhatsApp,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                contentDescription = "Call helper on WhatsApp. Opens WhatsApp with a prefilled message.",
-            )
-            PhoneModeHelperButton(
-                title = "Message helper",
-                onClick = viewModel::messageHelper,
-                containerColor = bentoWhiteCardColor(),
-                contentColor = bentoWhiteCardOnColor(),
-                contentDescription = "Message helper on WhatsApp",
-            )
-            PhoneModeHelperButton(
-                title = "Live Help",
-                onClick = onLiveHelp,
-                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = PHONE_HELPER_BUTTON_ALPHA),
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                contentDescription = "Start Live Help with a secure browser link for your helper",
+            PhoneModeActionBar(
+                onCallHelper = viewModel::callHelperOnWhatsApp,
+                onMessageHelper = viewModel::messageHelper,
+                onLiveHelp = onLiveHelp,
             )
             if (!hasCameraPermission) {
                 SecondaryActionButton(
@@ -202,25 +188,72 @@ fun PhoneGuidanceScreen(
     }
 }
 
-private const val PHONE_HELPER_BUTTON_ALPHA = 0.38f
+private val PHONE_ACTION_BAR_BG = Color.Black.copy(alpha = 0.38f)
 
 @Composable
-private fun PhoneModeHelperButton(
-    title: String,
+private fun PhoneModeActionBar(
+    onCallHelper: () -> Unit,
+    onMessageHelper: () -> Unit,
+    onLiveHelp: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(PHONE_ACTION_BAR_BG, RoundedCornerShape(20.dp))
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        PhoneModeIconAction(
+            imageVector = Icons.Filled.Phone,
+            label = "Call",
+            tint = MaterialTheme.colorScheme.primary,
+            onClick = onCallHelper,
+            contentDescription = "Call helper on WhatsApp",
+        )
+        PhoneModeIconAction(
+            imageVector = Icons.Filled.Chat,
+            label = "Message",
+            tint = Color.White,
+            onClick = onMessageHelper,
+            contentDescription = "Message helper on WhatsApp",
+        )
+        PhoneModeIconAction(
+            imageVector = Icons.Filled.Videocam,
+            label = "Live",
+            tint = MaterialTheme.colorScheme.primary,
+            onClick = onLiveHelp,
+            contentDescription = "Start Live Help",
+        )
+    }
+}
+
+@Composable
+private fun PhoneModeIconAction(
+    imageVector: ImageVector,
+    label: String,
+    tint: Color,
     onClick: () -> Unit,
-    containerColor: Color,
-    contentColor: Color,
     contentDescription: String,
 ) {
-    BentoCard(
-        title = title,
-        onClick = onClick,
-        containerColor = containerColor.copy(alpha = PHONE_HELPER_BUTTON_ALPHA),
-        contentColor = contentColor,
-        minHeight = BeaconDimens.bentoWideMinHeight,
-        modifier = Modifier.fillMaxWidth(),
-        contentDescription = contentDescription,
-    )
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.semantics { this.contentDescription = contentDescription },
+    ) {
+        IconButton(
+            onClick = onClick,
+            modifier = Modifier
+                .size(52.dp)
+                .background(Color.White.copy(alpha = 0.14f), CircleShape),
+        ) {
+            Icon(imageVector, contentDescription = null, tint = tint, modifier = Modifier.size(26.dp))
+        }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.White.copy(alpha = 0.9f),
+        )
+    }
 }
 
 @Composable

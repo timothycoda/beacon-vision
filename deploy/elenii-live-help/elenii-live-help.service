@@ -1,0 +1,17 @@
+[Unit]
+Description=Elenii Live Help signaling server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/elenii-live-help/signaling-server
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=8787
+EnvironmentFile=/opt/elenii-live-help/signaling.env
+ExecStart=/usr/bin/npx tsx src/index.ts
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

@@ -93,6 +93,9 @@ class PhoneGuidanceViewModel @Inject constructor(
     fun onCameraReady() {
         sessionController.markPhoneModeActive()
         _uiState.value = _uiState.value.copy(cameraReady = true)
+        if (_uiState.value.guidanceLanguage == GuidanceLanguage.Hausa) {
+            speaker.prepareHausaVoice()
+        }
         startNarrationLoop()
     }
 
@@ -205,10 +208,18 @@ class PhoneGuidanceViewModel @Inject constructor(
         narrationJob = viewModelScope.launch {
             delay(NARRATION_START_DELAY_MS)
             while (isActive) {
-                if (!sessionController.isAnalysisPaused() && !speaker.isSpeaking.value) {
-                    runNarrationTick()
+                if (!sessionController.isAnalysisPaused()) {
+                    val hausa = _uiState.value.guidanceLanguage == GuidanceLanguage.Hausa
+                    if (hausa || !speaker.isSpeaking.value) {
+                        runNarrationTick()
+                    }
                 }
-                delay(NARRATION_INTERVAL_MS)
+                val interval = if (_uiState.value.guidanceLanguage == GuidanceLanguage.Hausa) {
+                    HAUSA_NARRATION_INTERVAL_MS
+                } else {
+                    NARRATION_INTERVAL_MS
+                }
+                delay(interval)
             }
         }
     }
@@ -229,7 +240,7 @@ class PhoneGuidanceViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(lastSpoken = line)
                 val useHausaMms = language == GuidanceLanguage.Hausa
                 speaker.speak(line, interrupt = !useHausaMms)
-                speaker.awaitNotSpeaking()
+                speaker.awaitNotSpeaking(timeoutMs = if (useHausaMms) 25_000L else 15_000L)
             }
         }
     }
@@ -249,6 +260,7 @@ class PhoneGuidanceViewModel @Inject constructor(
     private companion object {
         const val DETECT_INTERVAL_MS = 250L
         const val NARRATION_INTERVAL_MS = 4_500L
+        const val HAUSA_NARRATION_INTERVAL_MS = 6_500L
         const val NARRATION_START_DELAY_MS = 1_500L
     }
 }

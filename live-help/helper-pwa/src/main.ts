@@ -19,15 +19,21 @@ function formatTimer(seconds: number): string {
   return [h, m, s].map((n) => String(n).padStart(2, "0")).join(":");
 }
 
-function renderJoin(onSubmit: (room: string, name: string) => void, initialRoom: string) {
+function renderJoin(
+  onSubmit: (room: string, name: string, token: string) => void,
+  initialRoom: string,
+  initialToken: string,
+) {
   app.innerHTML = `
     <div class="join-screen">
       <div class="join-card">
         <p class="logo">elenii</p>
-        <p class="tagline">Live Help — join as a trusted helper. Video stays between you and the user; nothing is recorded on our servers.</p>
+        <p class="tagline">Live Help — join as a trusted helper. Use the secure link from the Elenii app.</p>
         <form id="joinForm">
           <label for="roomInput">Session code</label>
           <input id="roomInput" maxlength="6" autocomplete="off" placeholder="ABC123" value="${initialRoom}" required />
+          <label for="tokenInput">Secure invite token</label>
+          <input id="tokenInput" type="password" autocomplete="off" placeholder="From invite link" value="${initialToken}" required />
           <label for="nameInput">Your name</label>
           <input id="nameInput" maxlength="40" placeholder="Helper name" value="Helper" required />
           <button type="submit" class="btn-primary">Join session</button>
@@ -41,14 +47,20 @@ function renderJoin(onSubmit: (room: string, name: string) => void, initialRoom:
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const room = (document.getElementById("roomInput") as HTMLInputElement).value.trim().toUpperCase();
+    const token = (document.getElementById("tokenInput") as HTMLInputElement).value.trim();
     const name = (document.getElementById("nameInput") as HTMLInputElement).value.trim();
     if (!/^[A-Z0-9]{6}$/.test(room)) {
       err.textContent = "Enter a 6-character session code.";
       err.classList.remove("hidden");
       return;
     }
+    if (!token) {
+      err.textContent = "Paste the token from your invite link.";
+      err.classList.remove("hidden");
+      return;
+    }
     err.classList.add("hidden");
-    onSubmit(room, name || "Helper");
+    onSubmit(room, name || "Helper", token);
   });
 }
 

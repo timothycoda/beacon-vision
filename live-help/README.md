@@ -43,7 +43,12 @@ cd live-help/helper-pwa && npm run dev -- --host
 | `helper-pwa` | Helper browser UI (video + chat + scene panel) |
 | `user.html` | Dev-only user publisher (replaced by Android) |
 
-**Privacy:** No recording or media storage on the signaling server. TURN/VPS deploy is a later step.
+## Production (VPS)
+
+- Host: **https://elenii.zeustek.com.ng** — invite links and release APK use this domain.
+- See [docs/LIVE_HELP_VPS.md](../docs/LIVE_HELP_VPS.md) for nginx + env vars.
+
+**Privacy:** No recording or media storage on the signaling server. Add coturn on the VPS for NAT traversal.
 
 ## Docs
 

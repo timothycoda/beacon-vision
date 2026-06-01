@@ -1,0 +1,24 @@
+# Append to /etc/caddy/Caddyfile (or include via import)
+elenii.zeustek.com.ng {
+	root * /opt/elenii-live-help/web
+	encode gzip
+
+	handle /ws* {
+		reverse_proxy 127.0.0.1:8787
+	}
+	handle /rooms* {
+		reverse_proxy 127.0.0.1:8787
+	}
+	handle /health {
+		reverse_proxy 127.0.0.1:8787
+	}
+
+	handle {
+		try_files {path} /index.html
+		file_server
+	}
+
+	log {
+		output file /var/log/caddy/elenii-live-help.log
+	}
+}
