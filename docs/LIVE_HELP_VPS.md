@@ -1,5 +1,16 @@
 # Live Help — VPS (`elenii.zeustek.com.ng`)
 
+## DNS (required)
+
+Add an **A record** at your DNS provider:
+
+| Name | Type | Value |
+|------|------|--------|
+| `elenii` (or `elenii.zeustek.com.ng`) | **A** | **`168.231.64.90`** |
+
+VPS public IPv4: **168.231.64.90** (hostname `srv1679929`).  
+Allow a few minutes for propagation, then: `curl https://elenii.zeustek.com.ng/health`
+
 Production URLs (Android **release** and PWA **production build**):
 
 | Service | URL |
