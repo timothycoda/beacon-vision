@@ -57,6 +57,7 @@ import java.util.concurrent.Executors
 @Composable
 fun PhoneGuidanceScreen(
     onBackToHome: () -> Unit,
+    onLiveHelp: () -> Unit,
     viewModel: PhoneGuidanceViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -182,6 +183,13 @@ fun PhoneGuidanceScreen(
                 containerColor = bentoWhiteCardColor(),
                 contentColor = bentoWhiteCardOnColor(),
                 contentDescription = "Message helper on WhatsApp",
+            )
+            PhoneModeHelperButton(
+                title = "Live Help",
+                onClick = onLiveHelp,
+                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = PHONE_HELPER_BUTTON_ALPHA),
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                contentDescription = "Start Live Help with a secure browser link for your helper",
             )
             if (!hasCameraPermission) {
                 SecondaryActionButton(

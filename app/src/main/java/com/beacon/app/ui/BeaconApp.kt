@@ -37,6 +37,7 @@ import com.beacon.app.ui.voicecommand.AssistantViewModel
 import com.beacon.app.ui.voicecommand.VoiceCommandScreen
 import com.beacon.app.ui.walking.WalkingModeScreen
 import com.beacon.app.ui.onboarding.OnboardingScreen
+import com.beacon.app.ui.livehelp.LiveHelpScreen
 import com.beacon.app.ui.phone.PhoneGuidanceScreen
 import com.beacon.app.ui.helper.TrustedHelpersScreen
 import com.beacon.app.ui.accessibility.AccessibilitySettingsScreen
@@ -143,10 +144,15 @@ fun BeaconApp(
                 onEmergency = { navController.navigate(BeaconDestinations.EMERGENCY) },
                 onVoiceCommand = { navController.navigate(BeaconDestinations.VOICE_COMMAND) },
                 onPhoneGuidance = { navController.navigate(BeaconDestinations.PHONE_GUIDANCE) },
+                onLiveHelp = { navController.navigate(BeaconDestinations.LIVE_HELP) },
             )
+        }
+        composable(BeaconDestinations.LIVE_HELP) {
+            LiveHelpScreen(onBack = { navController.popBackStack() })
         }
         composable(BeaconDestinations.PHONE_GUIDANCE) {
             PhoneGuidanceScreen(
+                onLiveHelp = { navController.navigate(BeaconDestinations.LIVE_HELP) },
                 onBackToHome = {
                     navController.navigate(BeaconDestinations.HOME) {
                         popUpTo(BeaconDestinations.PHONE_GUIDANCE) { inclusive = true }

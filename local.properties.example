@@ -1,0 +1,8 @@
+# Copy to local.properties (git-ignored). Android SDK path is required for Gradle.
+# sdk.dir=/Users/you/Library/Android/sdk
+
+# Live Help — Mac LAN IP for debug builds (see docs/LIVE_HELP_ANDROID.md)
+liveHelp.host=192.168.0.180
+
+# Optional: debug APK uses production URLs (elenii.zeustek.com.ng)
+# liveHelp.useProduction=true

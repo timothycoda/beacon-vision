@@ -1,0 +1,56 @@
+.user-dev {
+  max-width: 480px;
+  margin: 48px auto;
+  padding: 24px;
+  font-family: var(--font-sans);
+}
+
+.user-dev h1 {
+  color: var(--color-forest);
+  font-size: var(--text-xl);
+}
+
+.user-dev .hint {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.user-dev label {
+  display: block;
+  font-weight: 600;
+  margin: 16px 0 8px;
+}
+
+.user-dev input {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  font-size: var(--text-lg);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.user-dev button[type="submit"] {
+  margin-top: 16px;
+  width: 100%;
+  padding: 14px;
+  background: var(--color-forest);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+}
+
+.user-dev .status {
+  margin-top: 12px;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.user-dev video {
+  width: 100%;
+  margin-top: 16px;
+  border-radius: var(--radius-lg);
+  background: var(--color-forest-deep);
+}

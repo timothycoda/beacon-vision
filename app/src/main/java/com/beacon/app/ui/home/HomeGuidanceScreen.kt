@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Emergency
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -60,6 +61,7 @@ fun HomeGuidanceScreen(
     onEmergency: () -> Unit,
     onVoiceCommand: () -> Unit,
     onPhoneGuidance: () -> Unit,
+    onLiveHelp: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -139,6 +141,18 @@ fun HomeGuidanceScreen(
                 modifier = Modifier.weight(1f),
             )
         }
+
+        GuidedBentoCard(
+            action = SpeakableAction(
+                label = "Live Help",
+                phraseKey = AccessibilityPhraseKey.START_LIVE_HELP_DESCRIPTION,
+            ),
+            onClick = onLiveHelp,
+            containerColor = BeaconWhiteCard,
+            contentColor = BeaconWhiteCardText,
+            leadingIcon = Icons.Filled.Videocam,
+            minHeight = BeaconDimens.bentoWideMinHeight,
+        )
 
         GuidedBentoCard(
             action = SpeakableAction(

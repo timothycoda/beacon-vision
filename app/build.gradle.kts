@@ -43,12 +43,28 @@ android {
     }
 
     buildTypes {
+        val liveHelpProductionHost = "elenii.zeustek.com.ng"
         debug {
             isMinifyEnabled = false
+            val useProduction =
+                (project.findProperty("liveHelp.useProduction") as String?) == "true"
+            if (useProduction) {
+                buildConfigField("String", "LIVE_HELP_HTTP", "\"https://$liveHelpProductionHost\"")
+                buildConfigField("String", "LIVE_HELP_WS", "\"wss://$liveHelpProductionHost/ws\"")
+                buildConfigField("String", "LIVE_HELP_WEB", "\"https://$liveHelpProductionHost\"")
+            } else {
+                val liveHelpHost = (project.findProperty("liveHelp.host") as String?) ?: "10.0.2.2"
+                buildConfigField("String", "LIVE_HELP_HTTP", "\"http://$liveHelpHost:8787\"")
+                buildConfigField("String", "LIVE_HELP_WS", "\"ws://$liveHelpHost:8787/ws\"")
+                buildConfigField("String", "LIVE_HELP_WEB", "\"http://$liveHelpHost:5174\"")
+            }
         }
         release {
             // Minification stays off until core features are stable (per plan).
             isMinifyEnabled = false
+            buildConfigField("String", "LIVE_HELP_HTTP", "\"https://$liveHelpProductionHost\"")
+            buildConfigField("String", "LIVE_HELP_WS", "\"wss://$liveHelpProductionHost/ws\"")
+            buildConfigField("String", "LIVE_HELP_WEB", "\"https://$liveHelpProductionHost\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -102,6 +118,9 @@ dependencies {
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
+    implementation(libs.stream.webrtc.android)
+    implementation(libs.gson)
+    implementation(libs.okhttp)
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)

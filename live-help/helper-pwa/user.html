@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elenii Live Help — User (dev)</title>
+    <link rel="stylesheet" href="/src/styles/tokens.css" />
+    <link rel="stylesheet" href="/src/styles/user-dev.css" />
+  </head>
+  <body>
+    <main class="user-dev">
+      <h1>User camera (dev)</h1>
+      <p class="hint">Simulates the Android user for local WebRTC testing. Open the helper page in another browser.</p>
+      <form id="joinForm">
+        <label>
+          Room code
+          <input id="roomInput" maxlength="6" pattern="[A-Za-z0-9]{6}" required placeholder="ABC123" />
+        </label>
+        <button type="submit">Join &amp; share camera</button>
+      </form>
+      <p id="status" class="status" aria-live="polite"></p>
+      <video id="localPreview" autoplay playsinline muted></video>
+    </main>
+    <script type="module" src="/src/user-dev.ts"></script>
+  </body>
+</html>

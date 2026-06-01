@@ -16,4 +16,11 @@
     <string name="handoff_opening_whatsapp">Opening WhatsApp. Point your phone camera forward so your helper can see what is ahead.</string>
     <string name="handoff_opening_message">Opening WhatsApp to message your helper.</string>
     <string name="handoff_success_call">WhatsApp is open. Ask your helper to start a video call when ready.</string>
+
+    <string name="live_help_title">Live Help</string>
+    <string name="live_help_subtitle">Invite a trusted helper to see your camera. Video is peer-to-peer; nothing is stored on our servers.</string>
+    <string name="live_help_room_code">Room %1$s</string>
+    <string name="live_help_share_invite">Share secure helper link</string>
+    <string name="live_help_end">End Live Help</string>
+    <string name="live_help_retry">Try again</string>
 </resources>

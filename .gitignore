@@ -23,3 +23,8 @@ local.properties
 
 # Cursor session logs (keep .cursor/rules/)
 .cursor/debug*.log
+
+# Live Help (Node)
+live-help/**/node_modules/
+live-help/**/dist/
+live-help/helper-pwa/dist/
